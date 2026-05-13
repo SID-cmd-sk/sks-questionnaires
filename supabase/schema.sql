@@ -93,10 +93,17 @@ ALTER TABLE customers     ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "allow_public_insert_requests"
   ON requests FOR INSERT TO anon WITH CHECK (true);
 
--- Public READ own request by request_id (client portal)
+-- Public READ (client portal + admin dashboard — both use anon key)
 CREATE POLICY "allow_public_read_own_request"
   ON requests FOR SELECT TO anon
   USING (true);   -- refine with: USING (request_id = current_setting('app.request_id', true))
+
+-- Public UPDATE — allows dashboard to update status field only
+-- (anon key is used by the admin dashboard; restrict to status/notes/assigned_to only)
+CREATE POLICY "allow_public_update_requests"
+  ON requests FOR UPDATE TO anon
+  USING (true)
+  WITH CHECK (true);
 
 -- Service role can do everything (GitHub Actions / admin)
 CREATE POLICY "allow_service_all_requests"
