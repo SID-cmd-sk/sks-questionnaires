@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SKS — Track Your Request</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --red:#CC0000; --bg:#0f0f0f; --card:#1a1a1a; --border:#2a2a2a;
+          --text:#e8e8e8; --muted:#888; --green:#00a86b;
+          --orange:#e07a00; --accent:#006FA6; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text);
+         font-family:'Inter',sans-serif; min-height:100vh;
+         display:flex; flex-direction:column; }
+
+  .header {
+    background:var(--card); border-bottom:2px solid var(--red);
+    padding:14px 28px; display:flex; align-items:center; gap:14px;
+  }
+  .logo { font-family:'Rajdhani',sans-serif; color:var(--red);
+          font-size:22px; font-weight:700; }
+  .header-title { font-family:'Rajdhani',sans-serif; font-size:16px;
+    font-weight:600; color:var(--muted); letter-spacing:.06em;
+    border-left:1px solid var(--border); padding-left:14px; }
+
+  .hero {
+    background:linear-gradient(135deg,#0f0f0f 0%,#1a0000 100%);
+    border-bottom:1px solid var(--border);
+    padding:48px 28px 36px; text-align:center;
+  }
+  .hero h1 { font-family:'Rajdhani',sans-serif; font-size:32px;
+    font-weight:700; color:var(--text); letter-spacing:.06em; }
+  .hero p  { color:var(--muted); font-size:14px; margin-top:8px; }
+
+  .lookup-form {
+    display:flex; gap:12px; max-width:480px; margin:24px auto 0;
+    flex-wrap:wrap; justify-content:center;
+  }
+  .lookup-input {
+    flex:1; min-width:240px; background:var(--card);
+    border:1px solid var(--border); color:var(--text);
+    padding:12px 16px; border-radius:6px; font-size:15px;
+    font-family:'Rajdhani',sans-serif; letter-spacing:.04em;
+    outline:none; text-transform:uppercase;
+    transition:border-color .2s;
+  }
+  .lookup-input:focus { border-color:var(--red); }
+  .lookup-btn {
+    background:linear-gradient(135deg,var(--red),#a00000);
+    color:#fff; border:none; padding:12px 28px; border-radius:6px;
+    font-family:'Rajdhani',sans-serif; font-size:15px; font-weight:700;
+    letter-spacing:.06em; cursor:pointer; transition:opacity .15s;
+  }
+  .lookup-btn:hover { opacity:.85; }
+
+  .container { max-width:600px; margin:0 auto; padding:32px 20px; flex:1; }
+
+  .result-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:10px; overflow:hidden; display:none;
+  }
+  .result-card.visible { display:block; }
+
+  .rc-header {
+    padding:20px 24px; border-bottom:1px solid var(--border);
+    display:flex; align-items:flex-start; gap:16px;
+  }
+  .rc-id { font-family:'Rajdhani',sans-serif; font-size:13px;
+    color:var(--red); letter-spacing:.08em; margin-bottom:4px; }
+  .rc-name { font-size:20px; font-weight:600; }
+
+  .badge {
+    display:inline-block; padding:4px 14px; border-radius:20px;
+    font-size:12px; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; font-family:'Rajdhani',sans-serif;
+    white-space:nowrap;
+  }
+  .badge-pending    { background:rgba(212,160,0,.15); color:#d4a000;  border:1px solid rgba(212,160,0,.3); }
+  .badge-in_progress{ background:rgba(0,111,166,.15); color:var(--accent); border:1px solid rgba(0,111,166,.3); }
+  .badge-delivered  { background:rgba(0,168,107,.15); color:var(--green); border:1px solid rgba(0,168,107,.3); }
+  .badge-cancelled  { background:rgba(100,100,100,.15); color:#666; border:1px solid #333; }
+
+  /* Timeline */
+  .timeline { padding:24px; }
+  .tl-title { font-size:11px; color:var(--muted); letter-spacing:.08em;
+    text-transform:uppercase; margin-bottom:16px; }
+  .tl-steps { display:flex; flex-direction:column; gap:0; }
+  .tl-step  { display:flex; gap:16px; position:relative; }
+  .tl-step:not(:last-child) .tl-line {
+    position:absolute; left:11px; top:24px;
+    width:2px; height:100%; background:var(--border);
+  }
+  .tl-dot {
+    width:24px; height:24px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; z-index:1; margin-top:2px;
+  }
+  .tl-dot.done    { background:var(--green); color:#fff; }
+  .tl-dot.active  { background:var(--red); color:#fff;
+    box-shadow:0 0 0 4px rgba(204,0,0,.2); }
+  .tl-dot.waiting { background:var(--border); color:#555; }
+  .tl-content { padding-bottom:24px; }
+  .tl-step-title { font-size:14px; font-weight:600; }
+  .tl-step-desc  { font-size:12px; color:var(--muted); margin-top:3px; }
+  .tl-step-date  { font-size:11px; color:#555; margin-top:4px; }
+
+  /* Machines section */
+  .machines-section {
+    padding:0 24px 24px; border-top:1px solid var(--border);
+  }
+  .ms-title { font-size:11px; color:var(--muted); letter-spacing:.08em;
+    text-transform:uppercase; padding:16px 0 10px; }
+  .machine-row {
+    background:#111; border-radius:6px; padding:10px 14px;
+    margin-bottom:8px; font-size:13px;
+  }
+  .machine-name { font-weight:600; }
+  .machine-meta { color:var(--muted); font-size:12px; margin-top:2px; }
+
+  /* Download section */
+  .dl-section {
+    padding:0 24px 24px; border-top:1px solid var(--border);
+  }
+  .dl-title { font-size:11px; color:var(--muted); letter-spacing:.08em;
+    text-transform:uppercase; padding:16px 0 10px; }
+  .dl-btn-large {
+    display:block; background:linear-gradient(135deg,var(--accent),#004f78);
+    color:#fff; text-decoration:none; text-align:center;
+    padding:13px; border-radius:6px; font-family:'Rajdhani',sans-serif;
+    font-size:15px; font-weight:700; letter-spacing:.06em;
+    transition:opacity .15s;
+  }
+  .dl-btn-large:hover { opacity:.85; }
+
+  .error-box {
+    background:rgba(204,0,0,.08); border:1px solid rgba(204,0,0,.3);
+    border-radius:8px; padding:20px 24px; text-align:center;
+    color:var(--red); font-size:14px; display:none;
+  }
+  .error-box.visible { display:block; }
+
+  .footer { text-align:center; padding:24px;
+    color:#333; font-size:12px; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">SKS</div>
+  <div class="header-title">TRACK YOUR REQUEST</div>
+</div>
+
+<div class="hero">
+  <h1>REQUEST STATUS PORTAL</h1>
+  <p>Enter your Request ID to check the current status of your post-processor request.</p>
+  <div class="lookup-form">
+    <input class="lookup-input" type="text" id="rid-input"
+           placeholder="SKS-XXXXXXXXXXXXXXX"
+           onkeydown="if(event.key==='Enter') lookup()">
+    <button class="lookup-btn" onclick="lookup()">TRACK →</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="error-box" id="error-box">
+    Request not found. Please check your Request ID and try again.
+  </div>
+
+  <div class="result-card" id="result-card">
+
+    <div class="rc-header">
+      <div style="flex:1">
+        <div class="rc-id" id="rc-id"></div>
+        <div class="rc-name" id="rc-name"></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--muted);" id="rc-date"></div>
+      </div>
+      <div id="rc-badge"></div>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-title">Progress</div>
+      <div class="tl-steps" id="tl-steps"></div>
+    </div>
+
+    <div class="machines-section" id="machines-section" style="display:none">
+      <div class="ms-title">Machine(s) Submitted</div>
+      <div id="machines-list"></div>
+    </div>
+
+    <div class="dl-section" id="dl-section" style="display:none">
+      <div class="dl-title">Downloads</div>
+      <a class="dl-btn-large" id="dl-link" href="#" target="_blank">
+        ⬇  Download Deliverable
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  Copyright © SKS Scantech Engg Exim Pvt Ltd. · New Delhi, India
+</div>
+
+<script src="../env.js" onerror="console.warn('env.js missing')"></script>
+<script>
+const CFG    = window.SKS_CONFIG || {};
+const SB_URL = CFG.SUPABASE_URL      || '';
+const SB_KEY = CFG.SUPABASE_ANON_KEY || '';
+
+const STEPS = [
+  { key: 'submitted',   label: 'Submitted',    desc: 'Request received by SKS team' },
+  { key: 'in_progress', label: 'In Progress',  desc: 'Post-processor development underway' },
+  { key: 'delivered',   label: 'Delivered',    desc: 'Post-processor ready for download' }
+];
+
+const STATUS_STEP = {
+  pending:     0,
+  in_progress: 1,
+  delivered:   2,
+  cancelled:   -1
+};
+
+async function lookup() {
+  const rid = document.getElementById('rid-input').value.trim().toUpperCase();
+  if (!rid) return;
+
+  document.getElementById('result-card').classList.remove('visible');
+  document.getElementById('error-box').classList.remove('visible');
+
+  if (!SB_URL || !SB_KEY) {
+    document.getElementById('error-box').textContent =
+      'Portal not configured. Please contact SKS directly.';
+    document.getElementById('error-box').classList.add('visible');
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `${SB_URL}/rest/v1/requests?request_id=eq.${encodeURIComponent(rid)}&select=*`,
+      { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` } }
+    );
+    const data = await res.json();
+    if (!data || !data.length) {
+      document.getElementById('error-box').classList.add('visible');
+      return;
+    }
+    renderResult(data[0]);
+  } catch(e) {
+    document.getElementById('error-box').textContent = 'Lookup failed: ' + e.message;
+    document.getElementById('error-box').classList.add('visible');
+  }
+}
+
+function renderResult(r) {
+  document.getElementById('rc-id').textContent = r.request_id;
+  document.getElementById('rc-name').textContent = r.customer_name;
+  document.getElementById('rc-date').textContent =
+    'Submitted: ' + new Date(r.submitted_at).toLocaleString('en-IN');
+
+  const statusClass = r.status === 'cancelled' ? 'badge-cancelled'
+    : r.status === 'delivered' ? 'badge-delivered'
+    : r.status === 'in_progress' ? 'badge-in_progress'
+    : 'badge-pending';
+  document.getElementById('rc-badge').innerHTML =
+    `<span class="badge ${statusClass}">${r.status.replace('_',' ')}</span>`;
+
+  // Timeline
+  const stepIdx = STATUS_STEP[r.status] ?? 0;
+  let tlHtml = '';
+  STEPS.forEach((s, i) => {
+    let dotClass = i < stepIdx ? 'done' : i === stepIdx ? 'active' : 'waiting';
+    let dotIcon  = i < stepIdx ? '✓' : i + 1;
+    tlHtml += `
+      <div class="tl-step">
+        <div class="tl-line"></div>
+        <div class="tl-dot ${dotClass}">${dotIcon}</div>
+        <div class="tl-content">
+          <div class="tl-step-title">${s.label}</div>
+          <div class="tl-step-desc">${s.desc}</div>
+        </div>
+      </div>`;
+  });
+  document.getElementById('tl-steps').innerHTML = tlHtml;
+
+  // Machines
+  let machines = r.machines_json;
+  if (typeof machines === 'string') { try { machines = JSON.parse(machines); } catch(e) { machines = []; } }
+  if (machines && machines.length) {
+    let mHtml = '';
+    machines.forEach(m => {
+      mHtml += `<div class="machine-row">
+        <div class="machine-name">${esc(m.machine_name || '—')}</div>
+        <div class="machine-meta">${[m.machine_type, m.axis, m.controller].filter(Boolean).join(' · ')}</div>
+      </div>`;
+    });
+    document.getElementById('machines-list').innerHTML = mHtml;
+    document.getElementById('machines-section').style.display = '';
+  }
+
+  // Download (only if delivered)
+  if (r.status === 'delivered' && r.zip_url) {
+    document.getElementById('dl-link').href = r.zip_url;
+    document.getElementById('dl-section').style.display = '';
+  } else {
+    document.getElementById('dl-section').style.display = 'none';
+  }
+
+  document.getElementById('result-card').classList.add('visible');
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>
