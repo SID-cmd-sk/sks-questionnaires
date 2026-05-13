@@ -1874,6 +1874,8 @@ function updateOverlay(msg, pct) {
 
 // ── Google Drive upload (via Apps Script) ──────────────────
 async function uploadToGoogleDrive(blob, filename) {
+  console.log('Uploading ZIP...');
+  console.log(webAppUrl);
   const webAppUrl = SKS_CFG.GSHEET_WEBAPP_URL;
   if (!webAppUrl) {
     console.warn('Drive upload not configured — skipping');
@@ -1906,6 +1908,8 @@ async function uploadToGoogleDrive(blob, filename) {
 
 // ── Supabase insert ────────────────────────────────────────
 async function insertSupabase(payload) {
+  console.log('Supabase insert...');
+  console.log(payload);
   const url = SKS_CFG.SUPABASE_URL;
   const key  = SKS_CFG.SUPABASE_ANON_KEY;
   if (!url || !key) {
@@ -1929,23 +1933,39 @@ async function insertSupabase(payload) {
 
 // ── EmailJS notification ───────────────────────────────────
 async function sendEmailNotification(params) {
+  console.log('EMAIL SEND START');
+  console.log(params);
   const svcId  = SKS_CFG.EMAILJS_SERVICE_ID;
   const tplId  = SKS_CFG.EMAILJS_TEMPLATE_ID;
   const pubKey = SKS_CFG.EMAILJS_PUBLIC_KEY;
+
   if (!svcId || !tplId || !pubKey) {
-    console.warn('EmailJS not configured — skipping notification');
+    console.warn('EmailJS not configured');
     return;
   }
-  await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      service_id: svcId,
-      template_id: tplId,
-      user_id: pubKey,
-      template_params: params
-    })
-  });
+
+  const res = await fetch(
+    'https://api.emailjs.com/api/v1.0/email/send',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id: svcId,
+        template_id: tplId,
+        user_id: pubKey,
+        template_params: params
+      })
+    }
+  );
+
+  const txt = await res.text();
+
+  console.log('EMAIL STATUS:', res.status);
+  console.log('EMAIL RESPONSE:', txt);
+
+  if (!res.ok) {
+    throw new Error('EmailJS failed');
+  }
 }
 
 // ── Google Sheets append (via Apps Script Web App) ─────────
@@ -1967,6 +1987,7 @@ async function appendGoogleSheet(rowData) {
 
 // ── Main cloud dispatch (called from finalize) ─────────────
 async function cloudDispatch(zipBlob, zipName, jsonData) {
+  console.log('Cloud dispatch started');
   if (!SKS_CFG.CLOUD_ENABLED) return;
 
   try {
