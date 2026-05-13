@@ -23,7 +23,8 @@
 
 // ── Config ────────────────────────────────────────────────────
 const SHEET_NAME     = "SKS Submissions";
-const DRIVE_FOLDER   = "SKS Submissions";   // Google Drive folder name
+const DRIVE_FOLDER   = "SKS Submissions";   // Google Drive folder name (display only)
+const DRIVE_FOLDER_ID = "12cOfmeyNQL7Te0y6Ce1pgD0vbe_bc-FH"; // Fixed folder ID — faster, no search needed
 const SPREADSHEET_ID = "";                   // Set this if standalone (not bound to a sheet)
 
 // ── Column headers ────────────────────────────────────────────
@@ -55,6 +56,13 @@ function doGet() {
   return jsonResponse({ status: "ok", sheet: SHEET_NAME, folder: DRIVE_FOLDER });
 }
 
+// ── OPTIONS: satisfy CORS preflight (belt-and-suspenders) ────
+function doOptions() {
+  return ContentService
+    .createTextOutput("")
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+
 // ═══════════════════════════════════════════════════════════════
 // DRIVE UPLOAD
 // Receives base64-encoded ZIP, saves to Drive, returns share URL.
@@ -66,7 +74,7 @@ function handleDriveUpload(data) {
   }
 
   try {
-    const folder   = getOrCreateFolder(DRIVE_FOLDER);
+    const folder   = getOrCreateFolder();
     const filename = deduplicateFilename(folder, data.filename);
     const bytes    = Utilities.base64Decode(data.file_base64);
     const blob     = Utilities.newBlob(bytes, "application/zip", filename);
@@ -110,11 +118,9 @@ function deduplicateFilename(folder, filename) {
   return name;
 }
 
-// ── Get or create a Drive folder by name ─────────────────────
-function getOrCreateFolder(name) {
-  const existing = DriveApp.getFoldersByName(name);
-  if (existing.hasNext()) return existing.next();
-  return DriveApp.createFolder(name);
+// ── Get Drive folder by fixed ID ─────────────────────────────
+function getOrCreateFolder() {
+  return DriveApp.getFolderById(DRIVE_FOLDER_ID);
 }
 
 // ═══════════════════════════════════════════════════════════════
