@@ -202,7 +202,19 @@
   Copyright © SKS Scantech Engg Exim Pvt Ltd. · New Delhi, India
 </div>
 
-<script src="../env.js" onerror="console.warn('env.js missing')"></script>
+<script>
+window.SKS_CONFIG = {
+  CLOUD_ENABLED: true,
+  CLOUDINARY_CLOUD_NAME:    "dfwufilhs",
+  CLOUDINARY_UPLOAD_PRESET: "sks_unsigned_uploads",
+  SUPABASE_URL:             "https://nlewnmnqytetpcrwfvlm.supabase.co",
+  SUPABASE_ANON_KEY:        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXdubW5xeXRldHBjcndmdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzQzMDksImV4cCI6MjA5NDIxMDMwOX0.lYxVmr_6a-7BCq68UvOaiqsAs1xqGpflJZb1fgtDpJo",
+  EMAILJS_SERVICE_ID:       "service_r19w6gi",
+  EMAILJS_TEMPLATE_ID:      "template_hrzjr9r",
+  EMAILJS_PUBLIC_KEY:       "hSrYf7KXECv_l0BEg",
+  GSHEET_WEBAPP_URL:        "https://script.google.com/macros/s/AKfycbwuwExSE8jXnQ-MAyIId9nrSyOxsowbOPsBegyjk9zOZ1K-4wT_vBzgzCxZUJsRaPNr8Q/exec"
+};
+</script>
 <script>
 const CFG    = window.SKS_CONFIG || {};
 const SB_URL = CFG.SUPABASE_URL      || '';

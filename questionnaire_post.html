@@ -6,7 +6,20 @@
 <title>Post Processor Questionnaire – SKS Scantech</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="env.js" onerror="console.warn('env.js not found — cloud features disabled'); window.SKS_CONFIG={CLOUD_ENABLED:false};"></script>
+<script>
+// SKS Cloud Config — inlined for guaranteed delivery on GitHub Pages
+window.SKS_CONFIG = {
+  CLOUD_ENABLED: true,
+  CLOUDINARY_CLOUD_NAME:    "dfwufilhs",
+  CLOUDINARY_UPLOAD_PRESET: "sks_unsigned_uploads",
+  SUPABASE_URL:             "https://nlewnmnqytetpcrwfvlm.supabase.co",
+  SUPABASE_ANON_KEY:        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXdubW5xeXRldHBjcndmdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzQzMDksImV4cCI6MjA5NDIxMDMwOX0.lYxVmr_6a-7BCq68UvOaiqsAs1xqGpflJZb1fgtDpJo",
+  EMAILJS_SERVICE_ID:       "service_r19w6gi",
+  EMAILJS_TEMPLATE_ID:      "template_hrzjr9r",
+  EMAILJS_PUBLIC_KEY:       "hSrYf7KXECv_l0BEg",
+  GSHEET_WEBAPP_URL:        "https://script.google.com/macros/s/AKfycbwuwExSE8jXnQ-MAyIId9nrSyOxsowbOPsBegyjk9zOZ1K-4wT_vBzgzCxZUJsRaPNr8Q/exec"
+};
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1970,7 +1983,7 @@ async function cloudDispatch(zipBlob, zipName, jsonData) {
       email:         jsonData.email || '',
       contact:       jsonData.contact || '',
       machine_count: machines.length,
-      machines_json: JSON.stringify(machines),
+      machines_json: machines,
       zip_url:       zipUrl,
       json_url:      jsonUrl,
       zip_filename:  zipName,
