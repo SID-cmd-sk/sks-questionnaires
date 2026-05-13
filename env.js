@@ -13,7 +13,7 @@ window.SKS_CONFIG = {
   CLOUD_ENABLED: true,
 
   // ── Supabase (anon/public key — safe in browser) ─────────
-  SUPABASE_URL:      "https://nlewnmnqytetpcrwfvlm.supabase.co/rest/v1/",
+  SUPABASE_URL:      "https://nlewnmnqytetpcrwfvlm.supabase.co",
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXdubW5xeXRldHBjcndmdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzQzMDksImV4cCI6MjA5NDIxMDMwOX0.lYxVmr_6a-7BCq68UvOaiqsAs1xqGpflJZb1fgtDpJo",
 
   // ── EmailJS (public key — safe in browser) ───────────────
