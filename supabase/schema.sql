@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS requests (
   contact       TEXT,
   machine_count INT DEFAULT 0,
   machines_json JSONB,                      -- full machines array
-  zip_url       TEXT,                       -- Cloudinary secure URL
+  zip_url       TEXT,                       -- Google Drive share URL (view link)
   json_url      TEXT,
   zip_filename  TEXT,
   status        TEXT DEFAULT 'pending'

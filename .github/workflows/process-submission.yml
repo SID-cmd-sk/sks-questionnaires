@@ -251,7 +251,7 @@ jobs:
                   'email':         row.get('email', ''),
                   'machine_list':  machine_list,
                   'zip_url':       row.get('zip_url', 'N/A'),
-                  'dashboard_url': 'https://YOUR_ORG.github.io/sks-questionnaires/dashboard/'
+                  'dashboard_url': 'https://sid-cmd-sk.github.io/sks-questionnaires/dashboard/'
               }
           }
           body = json.dumps(payload).encode()

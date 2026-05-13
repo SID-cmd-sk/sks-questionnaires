@@ -306,14 +306,12 @@
 <script>
 window.SKS_CONFIG = {
   CLOUD_ENABLED: true,
-  CLOUDINARY_CLOUD_NAME:    "dfwufilhs",
-  CLOUDINARY_UPLOAD_PRESET: "sks_unsigned_uploads",
   SUPABASE_URL:             "https://nlewnmnqytetpcrwfvlm.supabase.co",
   SUPABASE_ANON_KEY:        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXdubW5xeXRldHBjcndmdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzQzMDksImV4cCI6MjA5NDIxMDMwOX0.lYxVmr_6a-7BCq68UvOaiqsAs1xqGpflJZb1fgtDpJo",
   EMAILJS_SERVICE_ID:       "service_r19w6gi",
   EMAILJS_TEMPLATE_ID:      "template_hrzjr9r",
   EMAILJS_PUBLIC_KEY:       "hSrYf7KXECv_l0BEg",
-  GSHEET_WEBAPP_URL:        "https://script.google.com/macros/s/AKfycbwuwExSE8jXnQ-MAyIId9nrSyOxsowbOPsBegyjk9zOZ1K-4wT_vBzgzCxZUJsRaPNr8Q/exec"
+  GSHEET_WEBAPP_URL:        "https://script.google.com/macros/s/AKfycbxd9v57EzjN0cUKc3QPyK2zM_Bl18XhNk2jhHiDoJy-aU-oEIbzAFYVXXJFG1B4Xd1YpA/exec"
 };
 </script>
 <script>
@@ -400,6 +398,17 @@ function applyFilters() {
 }
 
 // ── Render table ──────────────────────────────────────────
+function parseMachines(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'object') return Array.isArray(raw) ? raw : [];
+  if (typeof raw === 'string') {
+    try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; }
+    catch(e) { console.warn('machines_json parse error:', e); return []; }
+  }
+  return [];
+}
+
 function renderTable(rows) {
   if (!rows.length) {
     document.getElementById('table-body').innerHTML =
@@ -412,7 +421,7 @@ function renderTable(rows) {
   </tr></thead><tbody>`;
 
   rows.forEach(r => {
-    const machines = r.machines_json ? JSON.parse(r.machines_json) : [];
+    const machines = parseMachines(r.machines_json);
     const mNames   = machines.slice(0,2).map(m=>m.machine_name||'—').join(', ');
     const mMore    = machines.length > 2 ? ` +${machines.length-2}` : '';
     const dt       = new Date(r.submitted_at).toLocaleDateString('en-IN');
@@ -434,7 +443,7 @@ function renderTable(rows) {
 // ── Detail drawer ─────────────────────────────────────────
 function openDrawer(jsonStr) {
   const r = JSON.parse(jsonStr);
-  const machines = r.machines_json ? JSON.parse(r.machines_json) : [];
+  const machines = parseMachines(r.machines_json);
   const dt = new Date(r.submitted_at).toLocaleString('en-IN');
 
   let machineHtml = machines.map(m => `

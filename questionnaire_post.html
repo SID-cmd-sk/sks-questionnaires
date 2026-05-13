@@ -15,7 +15,7 @@ window.SKS_CONFIG = {
   EMAILJS_SERVICE_ID:  "service_r19w6gi",
   EMAILJS_TEMPLATE_ID: "template_hrzjr9r",
   EMAILJS_PUBLIC_KEY:  "hSrYf7KXECv_l0BEg",
-  GSHEET_WEBAPP_URL:   "https://script.google.com/macros/s/AKfycbwuwExSE8jXnQ-MAyIId9nrSyOxsowbOPsBegyjk9zOZ1K-4wT_vBzgzCxZUJsRaPNr8Q/exec"
+  GSHEET_WEBAPP_URL:   "https://script.google.com/macros/s/AKfycbxd9v57EzjN0cUKc3QPyK2zM_Bl18XhNk2jhHiDoJy-aU-oEIbzAFYVXXJFG1B4Xd1YpA/exec"
 };
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -1948,8 +1948,9 @@ async function uploadToGoogleDrive(blob, filename) {
     console.log('Drive upload successful');
 
     return {
-      file_url: j.file_url,
-      download_url: j.download_url
+      file_url:     j.file_url,
+      download_url: j.download_url,
+      filename:     j.filename || filename
     };
 
   } catch (err) {
@@ -2044,73 +2045,93 @@ async function cloudDispatch(zipBlob, zipName, jsonData) {
   console.log('Cloud dispatch started');
   if (!SKS_CFG.CLOUD_ENABLED) return;
 
+  // 30-second timeout guard — prevents UI hanging forever on network stall
+  const TIMEOUT_MS = 30000;
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error('Cloud upload timed out (30s)')), TIMEOUT_MS);
+  });
+
   try {
-    showUploadOverlay('Preparing submission…', 5);
-
-    // 1. Upload ZIP to Google Drive
-    updateOverlay('Uploading package to Google Drive…', 20);
-    const driveResult = await uploadToGoogleDrive(zipBlob, zipName);
-    const zipUrl      = driveResult ? driveResult.file_url     : '';
-    const downloadUrl = driveResult ? driveResult.download_url : '';
-
-    // 2. Build DB record (Supabase)
-    updateOverlay('Registering request…', 55);
-    const requestId = 'SKS-' + Date.now();
-    const machines  = jsonData.machines || [];
-    const dbRow = {
-      request_id:    requestId,
-      customer_name: jsonData.customer_name || '',
-      email:         jsonData.email || '',
-      contact:       jsonData.contact || '',
-      machine_count: machines.length,
-      machines_json: machines,
-      zip_url:       zipUrl,
-      json_url:      downloadUrl,   // direct download URL
-      zip_filename:  zipName,
-      status:        'pending',
-      submitted_at:  new Date().toISOString()
-    };
-    await insertSupabase(dbRow);
-
-    // 3. Google Sheets row
-    updateOverlay('Updating tracking sheet…', 75);
-    await appendGoogleSheet({
-      request_id:    requestId,
-      customer_name: jsonData.customer_name,
-      company:       '',
-      machine:       machines.map(m=>m.machine_name).join(', '),
-      controller:    machines.map(m=>m.controller).join(', '),
-      date:          new Date().toLocaleDateString('en-IN'),
-      status:        'Pending',
-      file_url:      zipUrl,
-      email:         jsonData.email || '',
-      contact:       jsonData.contact || '',
-      machine_count: machines.length
-    });
-
-    // 4. Email admin
-    updateOverlay('Notifying team…', 90);
-    await sendEmailNotification({
-      to_name:       'SKS Admin',
-      from_name:     jsonData.customer_name || 'Customer',
-      customer_email:jsonData.email || '',
-      request_id:    requestId,
-      machine_list:  machines.map(m=>`${m.machine_name} (${m.controller})`).join('\n'),
-      zip_url:       zipUrl || 'N/A',
-      submitted_at:  new Date().toLocaleString('en-IN')
-    });
-
-    updateOverlay('Submission complete!', 100);
-    setTimeout(() => {
-      hideUploadOverlay();
-      showSuccessModal(requestId, zipUrl);
-    }, 800);
-
+    await Promise.race([_cloudDispatchInner(zipBlob, zipName, jsonData), timeoutPromise]);
   } catch(err) {
     hideUploadOverlay();
     console.error('Cloud dispatch error:', err);
     showCloudErrorBanner(err.message);
+  } finally {
+    clearTimeout(timeoutId);
   }
+}
+
+async function _cloudDispatchInner(zipBlob, zipName, jsonData) {
+  showUploadOverlay('Preparing submission…', 5);
+
+  // 1. Upload ZIP to Google Drive
+  updateOverlay('Uploading package to Google Drive…', 20);
+  const driveResult = await uploadToGoogleDrive(zipBlob, zipName);
+  const zipUrl      = driveResult ? driveResult.file_url     : '';
+  const downloadUrl = driveResult ? driveResult.download_url : '';
+  const actualName  = driveResult ? (driveResult.filename || zipName) : zipName;
+
+  // 2. Build DB record (Supabase)
+  updateOverlay('Registering request…', 55);
+  const requestId = 'SKS-' + Date.now();
+  const machines  = jsonData.machines || [];
+  const dbRow = {
+    request_id:    requestId,
+    customer_name: jsonData.customer_name || '',
+    email:         jsonData.email || '',
+    contact:       jsonData.contact || '',
+    machine_count: machines.length,
+    machines_json: machines,
+    zip_url:       zipUrl,
+    json_url:      downloadUrl,   // direct download URL
+    zip_filename:  actualName,
+    status:        'pending',
+    submitted_at:  new Date().toISOString()
+  };
+  await insertSupabase(dbRow);
+
+  // 3. Google Sheets row
+  updateOverlay('Updating tracking sheet…', 75);
+  await appendGoogleSheet({
+    request_id:    requestId,
+    customer_name: jsonData.customer_name,
+    company:       '',
+    machine:       machines.map(m=>m.machine_name).join(', '),
+    controller:    machines.map(m=>m.controller).join(', '),
+    date:          new Date().toLocaleDateString('en-IN'),
+    status:        'Pending',
+    file_url:      zipUrl,
+    email:         jsonData.email || '',
+    contact:       jsonData.contact || '',
+    machine_count: machines.length
+  });
+
+  // 4. Email admin
+  updateOverlay('Notifying team…', 90);
+  const emailPayload = {
+    to_name:       'SKS Admin',
+    from_name:     jsonData.customer_name || 'Customer',
+    customer_name: jsonData.customer_name || '',
+    customer_email:jsonData.email || '',
+    contact:       jsonData.contact || '',
+    request_id:    requestId,
+    machine_count: String(machines.length),
+    machine_list:  machines.map(m=>`${m.machine_name} (${m.controller})`).join('\n') || 'N/A',
+    zip_filename:  actualName,
+    zip_url:       zipUrl || 'N/A',
+    download_url:  downloadUrl || 'N/A',
+    submitted_at:  new Date().toLocaleString('en-IN')
+  };
+  console.log('EMAIL PAYLOAD:', emailPayload);
+  await sendEmailNotification(emailPayload);
+
+  updateOverlay('Submission complete!', 100);
+  setTimeout(() => {
+    hideUploadOverlay();
+    showSuccessModal(requestId, zipUrl);
+  }, 800);
 }
 
 // ── Success modal ──────────────────────────────────────────
