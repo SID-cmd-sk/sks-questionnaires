@@ -25,6 +25,6 @@ window.SKS_CONFIG = {
   // This ONE URL handles:
   //   • ZIP upload to Google Drive   (action: 'upload_zip')
   //   • Row logging to Google Sheets (action: 'append_row' / default)
-  GSHEET_WEBAPP_URL: "hhttps://script.google.com/macros/s/AKfycbxd9v57EzjN0cUKc3QPyK2zM_Bl18XhNk2jhHiDoJy-aU-oEIbzAFYVXXJFG1B4Xd1YpA/exec"
+  GSHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbxd9v57EzjN0cUKc3QPyK2zM_Bl18XhNk2jhHiDoJy-aU-oEIbzAFYVXXJFG1B4Xd1YpA/exec"
 
 };
