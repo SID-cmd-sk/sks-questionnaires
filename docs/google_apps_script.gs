@@ -1,56 +1,101 @@
 /**
- * SKS Scantech — Google Sheets Automation
- * ==========================================
- * Deploy this as a Google Apps Script Web App:
- *   Extensions → Apps Script → paste this → Deploy → Web App
- *   Execute as: Me  |  Access: Anyone
+ * SKS Scantech — Google Apps Script
+ * ====================================
+ * Handles TWO things in ONE web app:
+ *   1. Upload the submission ZIP to Google Drive
+ *   2. Log the submission row to Google Sheets
+ *
+ * Deploy as a Web App:
+ *   Extensions → Apps Script → paste this → Save
+ *   Deploy → New deployment → Web App
+ *   Execute as: Me
+ *   Who has access: Anyone
  *
  * Copy the Web App URL into env.js → GSHEET_WEBAPP_URL
+ * (Same URL handles both Drive upload + Sheets logging)
  */
 
-// ── Config ────────────────────────────────────────────────
-const SHEET_NAME    = "SKS Submissions";
-const SPREADSHEET_ID = "";  // Leave empty to use the bound spreadsheet,
-                             // OR paste your Spreadsheet ID here
+// ── Config ────────────────────────────────────────────────────
+const SHEET_NAME     = "SKS Submissions";
+const DRIVE_FOLDER   = "SKS Submissions";   // Google Drive folder name
+const SPREADSHEET_ID = "";                   // Leave empty = bound spreadsheet
 
-// ── Column headers (must match order in appendRow) ────────
+// ── Column headers ────────────────────────────────────────────
 const HEADERS = [
   "Request ID", "Customer Name", "Company",
   "Machine(s)", "Controller(s)", "Date Submitted",
-  "Status", "ZIP URL", "Email", "Contact", "Machine Count"
+  "Status", "Drive File", "Email", "Contact", "Machine Count"
 ];
 
-// ── POST handler (called by questionnaire form) ───────────
+// ═══════════════════════════════════════════════════════════════
+// POST HANDLER — routes by action field
+// ═══════════════════════════════════════════════════════════════
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
-    appendRow(data);
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: true }))
-      .setMimeType(ContentService.MimeType.JSON);
+    if (data.action === "upload_zip") {
+      return handleDriveUpload(data);
+    } else {
+      return handleSheetAppend(data);
+    }
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ success: false, error: err.message });
   }
 }
 
-// ── GET handler (health check) ────────────────────────────
+// ── GET: health check ─────────────────────────────────────────
 function doGet() {
-  return ContentService
-    .createTextOutput(JSON.stringify({ status: "ok", sheet: SHEET_NAME }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return jsonResponse({ status: "ok", sheet: SHEET_NAME, folder: DRIVE_FOLDER });
 }
 
-// ── Append a row ──────────────────────────────────────────
-function appendRow(data) {
+// ═══════════════════════════════════════════════════════════════
+// DRIVE UPLOAD
+// Receives base64-encoded ZIP, saves to Drive, returns share URL
+// ═══════════════════════════════════════════════════════════════
+function handleDriveUpload(data) {
+  if (!data.file_base64 || !data.filename) {
+    return jsonResponse({ success: false, error: "Missing file_base64 or filename" });
+  }
+
+  const folder = getOrCreateFolder(DRIVE_FOLDER);
+  const bytes  = Utilities.base64Decode(data.file_base64);
+  const blob   = Utilities.newBlob(bytes, "application/zip", data.filename);
+  const file   = folder.createFile(blob);
+
+  // Make viewable by anyone with the link
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+  const fileId      = file.getId();
+  const viewUrl     = "https://drive.google.com/file/d/" + fileId + "/view?usp=sharing";
+  const downloadUrl = "https://drive.google.com/uc?export=download&id=" + fileId;
+
+  Logger.log("Drive upload: " + data.filename + " → " + fileId);
+
+  return jsonResponse({
+    success:      true,
+    file_id:      fileId,
+    file_url:     viewUrl,
+    download_url: downloadUrl
+  });
+}
+
+// ── Get or create a Drive folder by name ─────────────────────
+function getOrCreateFolder(name) {
+  const existing = DriveApp.getFoldersByName(name);
+  if (existing.hasNext()) return existing.next();
+  return DriveApp.createFolder(name);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SHEETS APPEND
+// ═══════════════════════════════════════════════════════════════
+function handleSheetAppend(data) {
   const ss = SPREADSHEET_ID
     ? SpreadsheetApp.openById(SPREADSHEET_ID)
     : SpreadsheetApp.getActiveSpreadsheet();
 
   let sheet = ss.getSheetByName(SHEET_NAME);
 
-  // Create sheet + headers if it doesn't exist
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
     const hRow = sheet.getRange(1, 1, 1, HEADERS.length);
@@ -59,15 +104,20 @@ function appendRow(data) {
     hRow.setBackground("#CC0000");
     hRow.setFontColor("#FFFFFF");
     sheet.setFrozenRows(1);
-    sheet.setColumnWidth(1, 180);   // Request ID
-    sheet.setColumnWidth(2, 180);   // Customer
-    sheet.setColumnWidth(4, 220);   // Machines
-    sheet.setColumnWidth(8, 280);   // ZIP URL
+    sheet.setColumnWidth(1, 180);
+    sheet.setColumnWidth(2, 180);
+    sheet.setColumnWidth(4, 220);
+    sheet.setColumnWidth(8, 300);
   }
 
   const now = new Date().toLocaleDateString("en-IN", {
     day: "2-digit", month: "short", year: "numeric"
   });
+
+  const driveUrl = data.file_url || "";
+  const driveCell = driveUrl
+    ? '=HYPERLINK("' + driveUrl + '","📁 Download")'
+    : "";
 
   sheet.appendRow([
     data.request_id    || "",
@@ -77,67 +127,43 @@ function appendRow(data) {
     data.controller    || "",
     data.date          || now,
     data.status        || "Pending",
-    data.zip_url       || "",
+    driveCell,
     data.email         || "",
     data.contact       || "",
     data.machine_count || ""
   ]);
 
-  // Auto-colour the status cell
-  const lastRow  = sheet.getLastRow();
-  const statusCol = 7;
-  const statusCell = sheet.getRange(lastRow, statusCol);
+  const lastRow    = sheet.getLastRow();
+  const statusCell = sheet.getRange(lastRow, 7);
   const statusVal  = (data.status || "pending").toLowerCase();
   if (statusVal === "pending")     statusCell.setBackground("#FFF8E1").setFontColor("#D4A000");
   if (statusVal === "in_progress") statusCell.setBackground("#E3F2FD").setFontColor("#006FA6");
   if (statusVal === "delivered")   statusCell.setBackground("#E8F5E9").setFontColor("#00A86B");
 
   Logger.log("Row appended: " + data.request_id);
-}
-
-// ── Optional: Supabase sync (run on a time-trigger) ───────
-// Set a daily trigger: Triggers → Add Trigger → syncFromSupabase → Time-based → Day timer
-function syncFromSupabase() {
-  const scriptProps = PropertiesService.getScriptProperties();
-  const sbUrl = scriptProps.getProperty("SUPABASE_URL");
-  const sbKey = scriptProps.getProperty("SUPABASE_ANON_KEY");
-
-  if (!sbUrl || !sbKey) {
-    Logger.log("Supabase not configured in Script Properties");
-    return;
-  }
-
-  const url = `${sbUrl}/rest/v1/requests?select=*&order=submitted_at.desc&limit=200`;
-  const resp = UrlFetchApp.fetch(url, {
-    headers: {
-      "apikey": sbKey,
-      "Authorization": `Bearer ${sbKey}`
-    }
-  });
-
-  const rows = JSON.parse(resp.getContentText());
-  Logger.log(`Synced ${rows.length} rows from Supabase`);
-
-  // Update status for each request
-  rows.forEach(row => {
-    updateStatusInSheet(row.request_id, row.status);
-  });
+  return jsonResponse({ success: true });
 }
 
 function updateStatusInSheet(requestId, newStatus) {
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) return;
-
   const data    = sheet.getDataRange().getValues();
-  const idCol   = 0;  // Column A (0-indexed)
-  const statCol = 6;  // Column G
-
   for (let i = 1; i < data.length; i++) {
-    if (data[i][idCol] === requestId) {
-      sheet.getRange(i + 1, statCol + 1).setValue(newStatus);
-      Logger.log(`Updated ${requestId} → ${newStatus}`);
+    if (data[i][0] === requestId) {
+      const cell = sheet.getRange(i + 1, 7);
+      cell.setValue(newStatus);
+      const s = newStatus.toLowerCase();
+      if (s === "pending")     cell.setBackground("#FFF8E1").setFontColor("#D4A000");
+      if (s === "in_progress") cell.setBackground("#E3F2FD").setFontColor("#006FA6");
+      if (s === "delivered")   cell.setBackground("#E8F5E9").setFontColor("#00A86B");
       return;
     }
   }
+}
+
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }

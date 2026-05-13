@@ -76,24 +76,37 @@ jobs:
                   f.write(f"customer_name={row['customer_name']}\n")
           PYEOF
 
-      # ── 4. Download ZIP from Cloudinary ──────────────────
+      # ── 4. Download ZIP from Google Drive ────────────────
       - name: Download ZIP artifact
         if: steps.fetch.outputs.found == 'true'
         run: |
           python - <<'PYEOF'
-          import json, urllib.request, os
+          import json, urllib.request, urllib.parse, re, os
 
           with open('submission.json') as f:
               row = json.load(f)
 
-          zip_url = row.get('zip_url', '')
+          zip_url = row.get('zip_url', '') or row.get('json_url', '')
           if not zip_url:
               print("::warning::No ZIP URL in submission")
           else:
               os.makedirs('artifacts', exist_ok=True)
               fname = row.get('zip_filename', 'submission.zip')
-              print(f"Downloading {fname} from Cloudinary…")
-              urllib.request.urlretrieve(zip_url, f'artifacts/{fname}')
+
+              # Convert Google Drive share URL to direct download URL
+              # view URL:  https://drive.google.com/file/d/FILE_ID/view...
+              # download:  https://drive.google.com/uc?export=download&id=FILE_ID
+              match = re.search(r'/d/([a-zA-Z0-9_-]+)', zip_url)
+              if match:
+                  file_id = match.group(1)
+                  dl_url = f'https://drive.google.com/uc?export=download&id={file_id}'
+              elif 'uc?export=download' in zip_url:
+                  dl_url = zip_url
+              else:
+                  dl_url = zip_url   # fallback as-is
+
+              print(f"Downloading {fname} from Google Drive…")
+              urllib.request.urlretrieve(dl_url, f'artifacts/{fname}')
               print(f"Downloaded: artifacts/{fname}")
           PYEOF
 

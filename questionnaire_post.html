@@ -10,14 +10,12 @@
 // SKS Cloud Config — inlined for guaranteed delivery on GitHub Pages
 window.SKS_CONFIG = {
   CLOUD_ENABLED: true,
-  CLOUDINARY_CLOUD_NAME:    "dfwufilhs",
-  CLOUDINARY_UPLOAD_PRESET: "sks_unsigned_uploads",
-  SUPABASE_URL:             "https://nlewnmnqytetpcrwfvlm.supabase.co",
-  SUPABASE_ANON_KEY:        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXdubW5xeXRldHBjcndmdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzQzMDksImV4cCI6MjA5NDIxMDMwOX0.lYxVmr_6a-7BCq68UvOaiqsAs1xqGpflJZb1fgtDpJo",
-  EMAILJS_SERVICE_ID:       "service_r19w6gi",
-  EMAILJS_TEMPLATE_ID:      "template_hrzjr9r",
-  EMAILJS_PUBLIC_KEY:       "hSrYf7KXECv_l0BEg",
-  GSHEET_WEBAPP_URL:        "https://script.google.com/macros/s/AKfycbwuwExSE8jXnQ-MAyIId9nrSyOxsowbOPsBegyjk9zOZ1K-4wT_vBzgzCxZUJsRaPNr8Q/exec"
+  SUPABASE_URL:      "https://nlewnmnqytetpcrwfvlm.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXdubW5xeXRldHBjcndmdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzQzMDksImV4cCI6MjA5NDIxMDMwOX0.lYxVmr_6a-7BCq68UvOaiqsAs1xqGpflJZb1fgtDpJo",
+  EMAILJS_SERVICE_ID:  "service_r19w6gi",
+  EMAILJS_TEMPLATE_ID: "template_hrzjr9r",
+  EMAILJS_PUBLIC_KEY:  "hSrYf7KXECv_l0BEg",
+  GSHEET_WEBAPP_URL:   "https://script.google.com/macros/s/AKfycbwuwExSE8jXnQ-MAyIId9nrSyOxsowbOPsBegyjk9zOZ1K-4wT_vBzgzCxZUJsRaPNr8Q/exec"
 };
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -1827,10 +1825,11 @@ function publishPDF() {
 
 
 // ============================================================
-// SKS CLOUD AUTOMATION LAYER  v1.0
-// Uploads ZIP + JSON to Cloudinary, records in Supabase,
-// notifies admin via EmailJS.
-// All keys are injected at runtime — never hardcoded here.
+// SKS CLOUD AUTOMATION LAYER  v2.0
+// Uploads ZIP to Google Drive (via Apps Script), records in
+// Supabase, notifies admin via EmailJS.
+// No Cloudinary needed — Drive upload uses the same Apps
+// Script URL already configured for Google Sheets.
 // ============================================================
 
 // ── Runtime config (injected by GitHub Actions / env.js) ──
@@ -1873,27 +1872,36 @@ function updateOverlay(msg, pct) {
   if (txt) txt.textContent = msg || '';
 }
 
-// ── Cloudinary unsigned upload ─────────────────────────────
-async function uploadToCloudinary(blob, filename, mimeType) {
-  const cloudName  = SKS_CFG.CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = SKS_CFG.CLOUDINARY_UPLOAD_PRESET;
-  if (!cloudName || !uploadPreset) {
-    console.warn('Cloudinary not configured — skipping cloud upload');
+// ── Google Drive upload (via Apps Script) ──────────────────
+async function uploadToGoogleDrive(blob, filename) {
+  const webAppUrl = SKS_CFG.GSHEET_WEBAPP_URL;
+  if (!webAppUrl) {
+    console.warn('Drive upload not configured — skipping');
     return null;
   }
-  const fd = new FormData();
-  fd.append('file', blob, filename);
-  fd.append('upload_preset', uploadPreset);
-  fd.append('public_id', filename.replace(/\.[^.]+$/, ''));
-  fd.append('resource_type', 'raw');
 
-  const res = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`, {
-    method: 'POST', body: fd
+  // Convert blob to base64
+  const arrayBuffer = await blob.arrayBuffer();
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = '';
+  // Process in chunks to avoid stack overflow on large files
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
+  const base64 = btoa(binary);
+
+  // Send as text/plain — avoids CORS preflight, Apps Script handles it fine
+  const res = await fetch(webAppUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'upload_zip', filename, file_base64: base64 })
   });
-  if (!res.ok) throw new Error(`Cloudinary ${res.status}: ${await res.text()}`);
+
+  if (!res.ok) throw new Error(`Drive upload HTTP ${res.status}`);
   const j = await res.json();
-  return j.secure_url;
+  if (!j.success) throw new Error(j.error || 'Drive upload failed');
+  return { file_url: j.file_url, download_url: j.download_url };
 }
 
 // ── Supabase insert ────────────────────────────────────────
@@ -1959,22 +1967,19 @@ async function appendGoogleSheet(rowData) {
 
 // ── Main cloud dispatch (called from finalize) ─────────────
 async function cloudDispatch(zipBlob, zipName, jsonData) {
-  if (!SKS_CFG.CLOUD_ENABLED) return;    // cloud off → normal local download
+  if (!SKS_CFG.CLOUD_ENABLED) return;
 
   try {
     showUploadOverlay('Preparing submission…', 5);
 
-    // 1. Upload ZIP
-    updateOverlay('Uploading package to secure cloud…', 20);
-    const zipUrl = await uploadToCloudinary(zipBlob, zipName, 'application/zip');
+    // 1. Upload ZIP to Google Drive
+    updateOverlay('Uploading package to Google Drive…', 20);
+    const driveResult = await uploadToGoogleDrive(zipBlob, zipName);
+    const zipUrl      = driveResult ? driveResult.file_url     : '';
+    const downloadUrl = driveResult ? driveResult.download_url : '';
 
-    // 2. Upload JSON backup
-    updateOverlay('Storing form data…', 50);
-    const jsonBlob2 = new Blob([JSON.stringify(jsonData,null,2)],{type:'application/json'});
-    const jsonUrl   = await uploadToCloudinary(jsonBlob2, zipName.replace('.zip','.json'), 'application/json');
-
-    // 3. Build DB record
-    updateOverlay('Registering request…', 65);
+    // 2. Build DB record (Supabase)
+    updateOverlay('Registering request…', 55);
     const requestId = 'SKS-' + Date.now();
     const machines  = jsonData.machines || [];
     const dbRow = {
@@ -1985,15 +1990,15 @@ async function cloudDispatch(zipBlob, zipName, jsonData) {
       machine_count: machines.length,
       machines_json: machines,
       zip_url:       zipUrl,
-      json_url:      jsonUrl,
+      json_url:      downloadUrl,   // direct download URL
       zip_filename:  zipName,
       status:        'pending',
       submitted_at:  new Date().toISOString()
     };
-    const dbRecord = await insertSupabase(dbRow);
+    await insertSupabase(dbRow);
 
-    // 4. Google Sheets row
-    updateOverlay('Updating tracking sheet…', 80);
+    // 3. Google Sheets row
+    updateOverlay('Updating tracking sheet…', 75);
     await appendGoogleSheet({
       request_id:    requestId,
       customer_name: jsonData.customer_name,
@@ -2002,10 +2007,13 @@ async function cloudDispatch(zipBlob, zipName, jsonData) {
       controller:    machines.map(m=>m.controller).join(', '),
       date:          new Date().toLocaleDateString('en-IN'),
       status:        'Pending',
-      zip_url:       zipUrl || ''
+      file_url:      zipUrl,
+      email:         jsonData.email || '',
+      contact:       jsonData.contact || '',
+      machine_count: machines.length
     });
 
-    // 5. Email admin
+    // 4. Email admin
     updateOverlay('Notifying team…', 90);
     await sendEmailNotification({
       to_name:       'SKS Admin',
@@ -2026,7 +2034,6 @@ async function cloudDispatch(zipBlob, zipName, jsonData) {
   } catch(err) {
     hideUploadOverlay();
     console.error('Cloud dispatch error:', err);
-    // Fallback: still trigger local download
     showCloudErrorBanner(err.message);
   }
 }

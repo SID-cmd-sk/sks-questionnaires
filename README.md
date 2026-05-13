@@ -1,9 +1,8 @@
 # SKS Scantech — Post-Processor Questionnaire System
-### Cloud-Automated Edition
 
 [![GitHub Pages](https://img.shields.io/badge/Hosted%20on-GitHub%20Pages-222?logo=github)](https://pages.github.com)
 [![Supabase](https://img.shields.io/badge/Database-Supabase-3ECF8E?logo=supabase)](https://supabase.com)
-[![Cloudinary](https://img.shields.io/badge/Storage-Cloudinary-3448C5?logo=cloudinary)](https://cloudinary.com)
+[![Google Drive](https://img.shields.io/badge/Storage-Google%20Drive-4285F4?logo=googledrive)](https://drive.google.com)
 
 ---
 
@@ -11,14 +10,13 @@
 
 Customers fill out the machine questionnaire on the website. Their submission is:
 
-1. **Downloaded locally** as a ZIP (unchanged from original — no data loss)
-2. **Uploaded automatically** to Cloudinary cloud storage
+1. **Downloaded locally** as a ZIP (always — no data loss)
+2. **Uploaded automatically** to Google Drive (via Apps Script)
 3. **Recorded in Supabase** database with full details
-4. **Logged in Google Sheets** for Excel-style tracking
-5. **Emailed to the admin** team with a direct download link
-6. **Processed by GitHub Actions** — validated and archived automatically
+4. **Logged in Google Sheets** for tracking
+5. **Emailed to the admin** team via EmailJS
 
-The admin can then open the desktop processor app, click **Fetch from Cloud**, and process all pending submissions in one click — with the Excel database updated and status marked delivered.
+The admin can open the dashboard, see all pending requests, and click through to download the ZIP directly from Google Drive.
 
 ---
 
@@ -36,16 +34,14 @@ The admin can then open the desktop processor app, click **Fetch from Cloud**, a
 
 | File | Description |
 |------|-------------|
-| `questionnaire_post.html` | Customer-facing form with cloud upload layer |
-| `env.js` | Runtime configuration (Supabase, Cloudinary, EmailJS keys) |
+| `questionnaire_post.html` | Customer-facing form — self-contained, all config inlined |
+| `env.js` | Runtime config (Supabase, EmailJS, Apps Script URL) |
 | `dashboard/index.html` | Admin request management dashboard |
 | `portal/index.html` | Customer request tracking portal |
-| `sks_processor_gui_cloud.py` | Updated admin desktop tool (cloud + local modes) |
 | `supabase/schema.sql` | Database schema — run once in Supabase SQL Editor |
-| `docs/SETUP_GUIDE.md` | **Complete setup instructions** |
-| `docs/google_apps_script.gs` | Deploy to Google Apps Script for Sheets integration |
+| `docs/google_apps_script.gs` | Paste into Apps Script — handles Drive upload + Sheets logging |
+| `docs/SETUP_GUIDE.md` | Complete setup instructions |
 | `.github/workflows/process-submission.yml` | GitHub Actions automation |
-| `.env.example` | All required environment variable names |
 
 ---
 
@@ -56,26 +52,36 @@ Customer Browser
     │
     ├─ questionnaire_post.html (GitHub Pages)
     │       │
-    │       ├─ ZIP ──────────────► Cloudinary (storage)
-    │       ├─ JSON ─────────────► Supabase   (database)
-    │       ├─ Row ──────────────► Google Sheets
+    │       ├─ ZIP ──────────────► Google Drive  (via Apps Script)
+    │       ├─ Row ──────────────► Google Sheets (same Apps Script URL)
+    │       ├─ JSON ─────────────► Supabase (database)
     │       └─ Email ────────────► EmailJS → Admin inbox
     │
     └─ Supabase INSERT webhook
             │
             └─► GitHub Actions (process-submission.yml)
-                    │
-                    ├─ Downloads ZIP from Cloudinary
+                    ├─ Downloads ZIP from Google Drive
                     ├─ Validates ZIP structure
-                    ├─ Generates metadata JSON
-                    ├─ Updates request → in_progress
+                    ├─ Updates status → in_progress
                     └─ Sends admin notification
 
-Admin Desktop (sks_processor_gui_cloud.py)
-    │
-    ├─ LOCAL tab:  import ZIP files manually (original workflow)
-    └─ CLOUD tab:  fetch pending → process → mark delivered
+Admin
+    ├─ Dashboard: view all requests, status, Drive links
+    └─ Portal:    customers track their own request by ID
 ```
+
+---
+
+## Services Used (all free)
+
+| Service | Purpose | Free Limit |
+|---------|---------|-----------|
+| GitHub Pages | Hosting | Unlimited public |
+| Google Drive | ZIP file storage | 15 GB |
+| Google Sheets + Apps Script | Tracking + upload proxy | Free |
+| Supabase | Database | 500 MB, 50K rows |
+| EmailJS | Email notifications | 200/month |
+| GitHub Actions | Automation | 2,000 min/month |
 
 ---
 
@@ -83,8 +89,7 @@ Admin Desktop (sks_processor_gui_cloud.py)
 
 See **[docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md)** for complete step-by-step instructions.
 
-Estimated setup time: **60–90 minutes** (one-time).  
-All services used are on **free tiers**.
+Estimated setup time: **30–45 minutes** (one-time).
 
 ---
 

@@ -1,402 +1,316 @@
-# SKS Scantech — Cloud Automation Setup Guide
-## Transforming the Manual Workflow into a Fully Automated System
+# SKS Scantech — Setup Guide
+## Complete Step-by-Step Instructions
 
 ---
 
-## Overview of What Gets Automated
+## Overview
 
 ```
-BEFORE (manual):
-  Customer fills form → downloads ZIP → emails it manually → admin imports manually → updates Excel
-
-AFTER (automated):
-  Customer fills form → ZIP auto-uploads to cloud → Supabase record created →
-  GitHub Actions fires → admin notified → admin processes with 1 click → status updated
+BEFORE: Customer fills form → downloads ZIP → emails manually → admin imports manually
+AFTER:  Customer fills form → ZIP auto-saved to Drive → Supabase updated →
+        admin notified by email → admin downloads from Drive link in dashboard
 ```
 
-**Estimated setup time: 60–90 minutes (one-time)**  
-**All services used: Free tier only**
+**Setup time: ~30–45 minutes (one-time)**  
+**All services: Free tier**
 
 ---
 
 ## Services You'll Set Up
 
-| Service | Purpose | Free Tier Limit |
-|---------|---------|----------------|
-| GitHub Pages | Hosting questionnaire + dashboard | Unlimited public |
-| Cloudinary | ZIP/file cloud storage | 25 GB storage, 25 GB bandwidth/month |
-| Supabase | Database (requests, logs) | 500 MB DB, 50K rows |
-| EmailJS | Email notifications | 200 emails/month |
-| Google Sheets | Excel-style tracking | Unlimited |
-| GitHub Actions | Automation workflows | 2,000 min/month |
+| Service | Purpose | What you need |
+|---------|---------|---------------|
+| GitHub | Hosting (Pages) + automation (Actions) | GitHub account |
+| Google (Drive + Sheets + Apps Script) | File storage + tracking | Google account |
+| Supabase | Database | Supabase account |
+| EmailJS | Email notifications | EmailJS account |
 
 ---
 
-## STEP 1 — GitHub Repository Setup
+## STEP 1 — GitHub Repository
 
 ### 1.1 Create repository
 1. Go to https://github.com/new
-2. Repository name: `sks-questionnaires` (or your choice)
+2. Name: `sks-questionnaires`
 3. Visibility: **Public** (required for free GitHub Pages)
-4. Initialize with README: Yes
-5. Click **Create repository**
+4. Click **Create repository**
 
-### 1.2 Upload project files
-Upload these files to the repository root:
+### 1.2 Upload all project files
+Upload the entire folder contents to the repo root. Structure must be:
 ```
-sks-questionnaires/
-├── questionnaire_post.html     ← modified form (from this package)
-├── env.js                      ← runtime config (values filled in Step 5)
-├── .gitignore                  ← prevents committing secrets
-├── dashboard/
-│   └── index.html              ← admin dashboard
-├── portal/
-│   └── index.html              ← client tracking portal
-├── supabase/
-│   └── schema.sql
-└── .github/
-    └── workflows/
-        └── process-submission.yml
+questionnaire_post.html
+env.js
+.gitignore
+dashboard/
+  index.html
+portal/
+  index.html
+supabase/
+  schema.sql
+  webhook_trigger.sql
+docs/
+  google_apps_script.gs
+  SETUP_GUIDE.md
+.github/
+  workflows/
+    process-submission.yml
 ```
-
-> ⚠️ **NEVER upload `env.js` with real values.** The template version with
-> placeholder text is safe to commit. Real values stay in GitHub Secrets only.
 
 ### 1.3 Enable GitHub Pages
 1. Repository → **Settings** → **Pages**
 2. Source: **Deploy from a branch**
 3. Branch: `main` / `(root)`
 4. Click **Save**
-5. Your site will be at: `https://YOUR_USERNAME.github.io/sks-questionnaires/`
+5. Site will be live at: `https://YOUR_USERNAME.github.io/sks-questionnaires/`
 
 ---
 
-## STEP 2 — Cloudinary Setup (File Storage)
+## STEP 2 — Google Apps Script (Drive + Sheets)
 
-### 2.1 Create account
-1. Go to https://cloudinary.com and sign up (free)
-2. Note your **Cloud Name** from the dashboard
+This is the most important step. One Apps Script handles both file storage and spreadsheet logging.
 
-### 2.2 Create unsigned upload preset
-1. Cloudinary Dashboard → **Settings** → **Upload**
-2. Scroll to **Upload Presets** → **Add upload preset**
+### 2.1 Create a Google Sheet
+1. Go to https://sheets.google.com
+2. Create a new spreadsheet
+3. Name it: `SKS Submissions Tracker`
+
+### 2.2 Open Apps Script
+1. In the spreadsheet: **Extensions → Apps Script**
+2. Delete all existing code in the editor
+3. Paste the **entire contents** of `docs/google_apps_script.gs`
+4. Click **Save** (Ctrl+S or the floppy disk icon)
+5. Give the project a name if asked: `SKS Automation`
+
+### 2.3 Deploy as Web App
+1. Click **Deploy** (top right) → **New deployment**
+2. Click the gear icon ⚙ next to "Type" → select **Web app**
 3. Settings:
-   - Preset name: `sks_unsigned_uploads`
-   - Signing mode: **Unsigned** ← critical
-   - Folder: `sks_submissions`
-   - Resource type: `Raw` (handles ZIP, PDF, etc.)
-4. Click **Save**
+   - Description: `SKS Questionnaire Handler`
+   - Execute as: **Me** (your Google account)
+   - Who has access: **Anyone**
+4. Click **Deploy**
+5. Click **Authorize access** → choose your Google account → Allow
+6. **Copy the Web App URL** — it looks like:
+   `https://script.google.com/macros/s/AKfycb.../exec`
 
-### 2.3 Note your credentials
-```
-Cloud Name:     your-cloudname
-Upload Preset:  sks_unsigned_uploads
-```
+> ⚠️ Keep this URL. You'll paste it into `env.js` and `questionnaire_post.html`.
+
+### 2.4 What this script does automatically
+- When a form is submitted, it saves the ZIP file to a **"SKS Submissions"** folder in your Google Drive
+- It logs a row to the **"SKS Submissions"** sheet in your spreadsheet
+- Files are shared "Anyone with link can view" so the admin can download them
 
 ---
 
-## STEP 3 — Supabase Setup (Database)
+## STEP 3 — Supabase (Database)
 
 ### 3.1 Create project
 1. Go to https://supabase.com → **New Project**
 2. Name: `sks-scantech`
-3. Database Password: choose a strong password (save it)
+3. Database password: choose a strong one (save it somewhere)
 4. Region: **ap-south-1** (Mumbai — closest to Delhi)
-5. Wait ~2 minutes for provisioning
+5. Click **Create new project** — wait ~2 minutes
 
-### 3.2 Run the schema
-1. Supabase Dashboard → **SQL Editor**
+### 3.2 Run the database schema
+1. Supabase Dashboard → **SQL Editor** (left sidebar)
 2. Click **New query**
 3. Paste the entire contents of `supabase/schema.sql`
-4. Click **Run** (▶)
+4. Click **Run** ▶
 5. You should see: "Success. No rows returned"
 
-### 3.3 Note your credentials
-1. Supabase Dashboard → **Project Settings** → **API**
-2. Copy:
-   - **Project URL** (e.g. `https://xxxx.supabase.co`)
-   - **anon public** key (safe for browser)
-   - **service_role** key (secret — server/Actions only)
+### 3.3 Get your credentials
+1. Supabase Dashboard → **Project Settings** (gear icon) → **API**
+2. Copy and save:
+   - **Project URL** — looks like `https://xxxx.supabase.co`
+   - **anon public** key — the long `eyJ...` string (safe for browser)
+   - **service_role** key — another long string (keep this secret — for GitHub Actions only)
 
 ---
 
-## STEP 4 — EmailJS Setup (Notifications)
+## STEP 4 — EmailJS (Email Notifications)
 
 ### 4.1 Create account
-1. Go to https://www.emailjs.com → Sign up (free)
+1. Go to https://www.emailjs.com → Sign up free
 2. Free tier: 200 emails/month
 
-### 4.2 Add email service
+### 4.2 Add your email service
 1. EmailJS Dashboard → **Email Services** → **Add New Service**
-2. Choose your email provider (Gmail recommended)
-3. Follow the OAuth steps
-4. Service ID: e.g. `service_sks`
+2. Choose **Gmail** (recommended) or your provider
+3. Follow OAuth steps → click **Connect Account**
+4. Service ID: note it (e.g. `service_sks`) or use the auto-generated one
 
-### 4.3 Create customer confirmation template
-1. **Email Templates** → **Create New Template**
-2. Template ID: `template_customer`
-3. Subject: `Request Received — {{request_id}}`
-4. Body:
-```
-Dear {{from_name}},
+### 4.3 Create the notification template
+1. EmailJS Dashboard → **Email Templates** → **Create New Template**
+2. Template content:
 
-Your post-processor request has been received.
+   **Subject:** `[NEW REQUEST] {{request_id}} — {{from_name}}`
 
-Request ID:  {{request_id}}
-Machines:    {{machine_list}}
-Submitted:   {{submitted_at}}
+   **Body:**
+   ```
+   New post-processor request received.
 
-Our team will review your requirements and contact you
-within 1–2 business days.
+   Request ID:   {{request_id}}
+   Customer:     {{from_name}}
+   Email:        {{customer_email}}
+   Submitted:    {{submitted_at}}
 
-— SKS Scantech Engineering Team
-```
-5. To Email: `{{customer_email}}`
+   Machines:
+   {{machine_list}}
 
-### 4.4 Create admin notification template
-1. **Create New Template**
-2. Template ID: `template_admin`
-3. Subject: `[NEW] Post-processor Request — {{request_id}}`
-4. Body:
-```
-New request received:
+   Drive link:   {{zip_url}}
+   ```
 
-Request ID:     {{request_id}}
-Customer:       {{from_name}} <{{customer_email}}>
-Machines:
-{{machine_list}}
+3. To Email: your admin email address
+4. Click **Save**
+5. Note the **Template ID** (e.g. `template_abc123`)
 
-ZIP Download:   {{zip_url}}
-Dashboard:      {{dashboard_url}}
-
-Submitted:      {{submitted_at}}
-```
-5. To Email: your admin email
-
-### 4.5 Note credentials
-```
-Service ID:      service_sks
-Template ID 1:   template_customer
-Template ID 2:   template_admin
-Public Key:      (EmailJS Dashboard → Account → API Keys)
-```
+### 4.4 Get your Public Key
+1. EmailJS Dashboard → **Account** (top right) → **General**
+2. Copy the **Public Key**
 
 ---
 
-## STEP 5 — Google Sheets Setup (Tracking)
+## STEP 5 — Configure env.js
 
-### 5.1 Create spreadsheet
-1. Go to https://sheets.google.com → create new sheet
-2. Name it: `SKS Submissions Tracker`
-
-### 5.2 Deploy Apps Script
-1. In the spreadsheet: **Extensions** → **Apps Script**
-2. Delete the default code
-3. Paste the entire contents of `docs/google_apps_script.gs`
-4. Click **Save** (Ctrl+S)
-5. **Deploy** → **New deployment**
-   - Type: **Web App**
-   - Execute as: **Me**
-   - Who has access: **Anyone**
-6. Click **Deploy** → Authorize when prompted
-7. Copy the **Web App URL**
-
----
-
-## STEP 6 — Configure env.js
-
-Edit `env.js` with all the values collected above:
+Open `env.js` and fill in your values:
 
 ```javascript
 window.SKS_CONFIG = {
   CLOUD_ENABLED: true,
 
-  CLOUDINARY_CLOUD_NAME:    "your-cloudname",
-  CLOUDINARY_UPLOAD_PRESET: "sks_unsigned_uploads",
+  // From Step 3 (Supabase)
+  SUPABASE_URL:      "https://YOUR_PROJECT.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
 
-  SUPABASE_URL:             "https://xxxx.supabase.co",
-  SUPABASE_ANON_KEY:        "eyJhbGciOiJI...",
+  // From Step 4 (EmailJS)
+  EMAILJS_SERVICE_ID:  "service_xxxxxxx",
+  EMAILJS_TEMPLATE_ID: "template_xxxxxxx",
+  EMAILJS_PUBLIC_KEY:  "xxxxxxxxxxxxxxxxxxxx",
 
-  EMAILJS_SERVICE_ID:       "service_sks",
-  EMAILJS_TEMPLATE_ID:      "template_customer",
-  EMAILJS_PUBLIC_KEY:       "your_public_key",
-
-  GSHEET_WEBAPP_URL:        "https://script.google.com/macros/s/XXXXX/exec"
+  // From Step 2 (Apps Script Web App URL)
+  GSHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycb.../exec"
 };
 ```
 
-**Commit this file** — the anon/public keys are safe in browser code.
+### Also update questionnaire_post.html
+The questionnaire has the same config **inlined at the top** (so it works even if `env.js` fails to load). Open `questionnaire_post.html`, find this block near line 11 and update the same values:
+
+```javascript
+window.SKS_CONFIG = {
+  CLOUD_ENABLED: true,
+  SUPABASE_URL:      "https://YOUR_PROJECT.supabase.co",
+  ...
+```
+
+Commit both files to your GitHub repo.
 
 ---
 
-## STEP 7 — GitHub Secrets (for Actions)
+## STEP 6 — GitHub Secrets (for Actions)
 
-Go to: Repository → **Settings** → **Secrets and variables** → **Actions**
+Repository → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
-Add these secrets (one by one, **New repository secret**):
+Add these one by one:
 
-| Secret Name | Value |
-|-------------|-------|
-| `SUPABASE_URL` | `https://xxxx.supabase.co` |
-| `SUPABASE_SERVICE_KEY` | service_role key from Supabase |
-| `EMAILJS_SERVICE_ID` | your EmailJS service ID |
-| `EMAILJS_TEMPLATE_ADMIN_ID` | your admin template ID |
-| `EMAILJS_PUBLIC_KEY` | your EmailJS public key |
+| Secret Name | Where to get it |
+|-------------|-----------------|
+| `SUPABASE_URL` | Supabase → Project Settings → API → Project URL |
+| `SUPABASE_SERVICE_KEY` | Supabase → Project Settings → API → service_role key |
+| `EMAILJS_SERVICE_ID` | EmailJS → Email Services |
+| `EMAILJS_TEMPLATE_ADMIN_ID` | EmailJS → Email Templates → your template ID |
+| `EMAILJS_PUBLIC_KEY` | EmailJS → Account → General → Public Key |
+
+> These are only used by GitHub Actions for the automated processing workflow. They never appear in the browser.
 
 ---
 
-## STEP 8 — Supabase Webhook (Auto-trigger GitHub Actions)
+## STEP 7 — Supabase Webhook (triggers GitHub Actions automatically)
 
-### Option A: Supabase Database Webhook (Recommended)
+This makes GitHub Actions fire automatically every time a form is submitted.
+
 1. Supabase Dashboard → **Database** → **Webhooks**
 2. **Create a new webhook**
-3. Settings:
-   - Name: `trigger-github-actions`
-   - Table: `requests`
-   - Events: **INSERT** only
-   - Type: **HTTP Request**
-   - URL: `https://api.github.com/repos/YOUR_USERNAME/sks-questionnaires/dispatches`
-   - Method: POST
-   - Headers:
+3. Fill in:
+   - **Name:** `trigger-github-actions`
+   - **Table:** `requests`
+   - **Events:** INSERT only ✓
+   - **Type:** HTTP Request
+   - **URL:** `https://api.github.com/repos/YOUR_USERNAME/sks-questionnaires/dispatches`
+   - **Method:** POST
+   - **Headers:**
      - `Authorization`: `Bearer YOUR_GITHUB_PAT`
      - `Accept`: `application/vnd.github+json`
      - `Content-Type`: `application/json`
-   - Body:
+   - **Body:**
      ```json
      {"event_type": "new_submission", "client_payload": {"request_id": "{{ record.request_id }}"}}
      ```
 4. Click **Create webhook**
 
-> For GitHub PAT: GitHub → Settings → Developer settings → Personal access tokens (classic)
-> Scopes needed: `repo` (workflow dispatch)
-
-### Option B: Supabase Edge Function
-See `supabase/webhook_trigger.sql` for full TypeScript code.
-
----
-
-## STEP 9 — Local Python Processor (Cloud Edition)
-
-### 9.1 Set environment variables
-**Windows (Command Prompt):**
-```cmd
-setx SUPABASE_URL "https://xxxx.supabase.co"
-setx SUPABASE_SERVICE_KEY "your_service_role_key"
-```
-
-**Windows (PowerShell):**
-```powershell
-[Environment]::SetEnvironmentVariable("SUPABASE_URL","https://xxxx.supabase.co","User")
-[Environment]::SetEnvironmentVariable("SUPABASE_SERVICE_KEY","your_key","User")
-```
-Restart the terminal after setting.
-
-### 9.2 Use the cloud processor
-Run `sks_processor_gui_cloud.py` instead of `sks_processor_gui.py`.
-
-New workflow in the app:
-1. Click **☁ FETCH FROM CLOUD** tab
-2. Click **↓ FETCH PENDING** to see new submissions
-3. Select one or click **▶▶ PROCESS ALL PENDING**
-4. App downloads ZIP, processes it, updates Excel, marks delivered in Supabase
-
-The original **📁 LOCAL IMPORT** tab works exactly as before — nothing changed.
+**To get a GitHub PAT:**
+1. GitHub → Settings (your profile) → Developer settings → Personal access tokens → Tokens (classic)
+2. Generate new token (classic)
+3. Scopes: tick `repo`
+4. Copy the token (shown once only)
 
 ---
 
-## STEP 10 — Verify End-to-End
+## STEP 8 — Test End-to-End
 
-### Test checklist:
 - [ ] Open `https://YOUR_USERNAME.github.io/sks-questionnaires/questionnaire_post.html`
-- [ ] Fill in customer name, add a machine
-- [ ] Click **GENERATE & SUBMIT**
-- [ ] Confirm: ZIP downloaded locally (original behavior preserved)
-- [ ] Confirm: Upload progress overlay appears
-- [ ] Confirm: Success modal shows with Request ID
-- [ ] Check Cloudinary dashboard → ZIP appears in `sks_submissions/` folder
-- [ ] Check Supabase → `requests` table → new row with `status = pending`
-- [ ] Check Google Sheets → new row added
-- [ ] Check admin email → notification received
-- [ ] Check GitHub Actions → workflow ran (`Actions` tab in repository)
-- [ ] Open Dashboard: `https://YOUR_USERNAME.github.io/sks-questionnaires/dashboard/`
-- [ ] Confirm request appears with Pending status
-- [ ] Open Portal: `https://YOUR_USERNAME.github.io/sks-questionnaires/portal/`
-- [ ] Enter Request ID → confirm status displayed
+- [ ] Fill in a customer name, add one machine, click **GENERATE & SUBMIT**
+- [ ] ZIP downloads locally ✓
+- [ ] Upload overlay appears, progress bar runs ✓
+- [ ] Success modal shows with a Request ID (e.g. `SKS-1714123456789`) ✓
+- [ ] Check Google Drive → "SKS Submissions" folder → ZIP file appears ✓
+- [ ] Check Google Sheets → new row with clickable Drive link ✓
+- [ ] Check Supabase → Table Editor → `requests` → new row with `status = pending` ✓
+- [ ] Check your admin email → notification received ✓
+- [ ] Check GitHub → Actions tab → workflow ran successfully ✓
+- [ ] Open Dashboard: `https://YOUR_USERNAME.github.io/sks-questionnaires/dashboard/` → request appears ✓
+- [ ] Open Portal: `https://YOUR_USERNAME.github.io/sks-questionnaires/portal/` → enter Request ID → status shows ✓
 
 ---
 
 ## Troubleshooting
 
 ### "Cloud upload issue" banner appears
-- Check browser console (F12) for specific error
-- Verify `env.js` values are correct
-- Verify Cloudinary upload preset is set to **Unsigned**
-- ZIP still downloads locally — submission not lost
+The ZIP still downloads locally — no data is lost. Check:
+1. Open browser console (F12) → look for the error message
+2. Most common cause: Apps Script URL is wrong or not deployed yet
+3. Verify `GSHEET_WEBAPP_URL` in `env.js` and inside `questionnaire_post.html`
+4. Make sure the Apps Script is deployed with **Who has access: Anyone** (not "Anyone with Google account")
 
 ### Dashboard shows "Check env.js Supabase config"
-- Verify `SUPABASE_URL` and `SUPABASE_ANON_KEY` in `env.js`
-- Check Supabase → Policies — ensure anon SELECT is allowed
+- Verify `SUPABASE_URL` and `SUPABASE_ANON_KEY` in `env.js` are correct
+- Check Supabase → Authentication → Policies → `requests` table has anon SELECT policy
+
+### Email not received
+- Check spam folder
+- In EmailJS → Email Logs — does it show a send attempt?
+- Verify the template has the correct "To Email" address
 
 ### GitHub Actions not triggering
-- Verify Supabase webhook is enabled
-- Check GitHub PAT has `repo` scope
-- Manually trigger: Actions → process-submission → Run workflow
+- Check Supabase webhook is enabled (green dot)
+- Verify GitHub PAT has `repo` scope and hasn't expired
+- Manually trigger: GitHub → Actions → "SKS — Process New Submission" → Run workflow
 
-### Python processor can't fetch from cloud
-- Verify environment variables are set (restart terminal after setx)
-- Check `SUPABASE_SERVICE_KEY` (service role, not anon)
-- Test in terminal: `python -c "import os; print(os.environ.get('SUPABASE_URL'))"`
-
----
-
-## Folder Structure (Final)
-
-```
-sks-questionnaires/                  ← GitHub repository root
-│
-├── questionnaire_post.html          ← Customer-facing form (modified)
-├── env.js                           ← Runtime config (commit with real values)
-├── .gitignore
-├── .env.example                     ← Reference for all variables
-│
-├── dashboard/
-│   └── index.html                   ← Admin dashboard
-│
-├── portal/
-│   └── index.html                   ← Customer tracking portal
-│
-├── supabase/
-│   ├── schema.sql                   ← Database schema (run once)
-│   └── webhook_trigger.sql          ← GitHub Actions trigger setup
-│
-├── docs/
-│   ├── google_apps_script.gs        ← Paste into Apps Script editor
-│   └── SETUP_GUIDE.md               ← This file
-│
-├── .github/
-│   └── workflows/
-│       └── process-submission.yml   ← GitHub Actions automation
-│
-└── sks_processor_gui_cloud.py       ← Updated Python admin tool
-                                        (original .py also kept)
-```
+### File not appearing in Drive
+- Check Apps Script → Executions log for errors
+- Make sure the deployment is re-done after any code changes (Deploy → **New deployment**, not "Manage deployments → Edit")
 
 ---
 
-## Monthly Usage Estimates (Free Tier)
+## Monthly Usage at ~50 Submissions
 
-Assuming ~50 submissions/month:
+| Service | Usage | Free Limit |
+|---------|-------|-----------|
+| Google Drive | ~500 MB/year | 15 GB |
+| Supabase | ~600 rows/year | 50,000 rows |
+| EmailJS | ~50–100 emails/month | 200/month |
+| GitHub Actions | ~50 min/month | 2,000 min/month |
 
-| Service | Usage | Free Limit | Status |
-|---------|-------|-----------|--------|
-| Cloudinary | ~500 MB storage | 25 GB | ✅ Well within |
-| Supabase | ~5K rows/year | 50K rows | ✅ Well within |
-| EmailJS | ~100 emails/month | 200/month | ✅ Fine |
-| GitHub Actions | ~100 min/month | 2,000 min | ✅ Fine |
-| GitHub Pages | Static hosting | Unlimited | ✅ Fine |
-
-> For higher volume (200+ submissions/month), EmailJS may need upgrading to
-> the $9/month plan. All other services remain free.
+All well within free tiers.
 
 ---
 
