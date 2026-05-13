@@ -2041,53 +2041,123 @@ async function appendGoogleSheet(rowData) {
 
 // ── Main cloud dispatch (called from finalize) ─────────────
 async function cloudDispatch(zipBlob, zipName, jsonData) {
+
   console.log('Cloud dispatch started');
+
   if (!SKS_CFG.CLOUD_ENABLED) return;
 
   try {
+
     showUploadOverlay('Preparing submission…', 5);
 
     // 1. Upload ZIP to Google Drive
     updateOverlay('Uploading package to Google Drive…', 20);
-    const driveResult = await uploadToGoogleDrive(zipBlob, zipName);
-    const zipUrl      = driveResult ? driveResult.file_url     : '';
-    const downloadUrl = driveResult ? driveResult.download_url : '';
+
+    const driveUpload = await uploadToGoogleDrive(
+      zipBlob,
+      zipName
+    );
+
+    console.log('Drive Upload Result:', driveUpload);
+
+    const zipUrl =
+      driveUpload ? driveUpload.file_url : '';
+
+    const downloadUrl =
+      driveUpload ? driveUpload.download_url : '';
 
     // 2. Build DB record (Supabase)
     updateOverlay('Registering request…', 55);
+
     const requestId = 'SKS-' + Date.now();
-    const machines  = jsonData.machines || [];
+
+    const machines = jsonData.machines || [];
+
     const dbRow = {
       request_id:    requestId,
       customer_name: jsonData.customer_name || '',
       email:         jsonData.email || '',
       contact:       jsonData.contact || '',
       machine_count: machines.length,
+
       machines_json: machines,
+
       zip_url:       zipUrl,
-      json_url:      downloadUrl,   // direct download URL
+      download_url:  downloadUrl,
+
       zip_filename:  zipName,
       status:        'pending',
       submitted_at:  new Date().toISOString()
     };
+
+    console.log('Supabase DB Row:', dbRow);
+
     await insertSupabase(dbRow);
 
     // 3. Google Sheets row
     updateOverlay('Updating tracking sheet…', 75);
+
     await appendGoogleSheet({
       request_id:    requestId,
-      customer_name: jsonData.customer_name,
-      company:       '',
-      machine:       machines.map(m=>m.machine_name).join(', '),
-      controller:    machines.map(m=>m.controller).join(', '),
-      date:          new Date().toLocaleDateString('en-IN'),
-      status:        'Pending',
+      customer_name: jsonData.customer_name || '',
+      company:       jsonData.company || '',
+
+      machine: machines
+        .map(m => m.machine_name || '')
+        .join(', '),
+
+      controller: machines
+        .map(m => m.controller || '')
+        .join(', '),
+
+      date: new Date().toLocaleDateString('en-IN'),
+
+      status: 'Pending',
+
       file_url:      zipUrl,
+      download_url:  downloadUrl,
+
       email:         jsonData.email || '',
       contact:       jsonData.contact || '',
       machine_count: machines.length
     });
 
+    // 4. Send admin notification email
+    updateOverlay('Sending notification email…', 90);
+
+    await sendEmailNotification({
+      request_id:    requestId,
+      customer_name: jsonData.customer_name || '',
+      email:         jsonData.email || '',
+      contact:       jsonData.contact || '',
+
+      zip_url:       zipUrl,
+      download_url:  downloadUrl,
+
+      machine_count: machines.length,
+      zip_filename:  zipName
+    });
+
+    updateOverlay('Submission completed successfully!', 100);
+
+    console.log('Cloud dispatch completed successfully');
+
+    setTimeout(() => {
+      hideUploadOverlay();
+    }, 1500);
+
+  } catch (err) {
+
+    console.error('CLOUD DISPATCH ERROR:', err);
+
+    hideUploadOverlay();
+
+    alert(
+      'Cloud submission failed:\\n\\n' +
+      (err?.message || err)
+    );
+  }
+}
     // 4. Email admin
     updateOverlay('Notifying team…', 90);
     await sendEmailNotification({
