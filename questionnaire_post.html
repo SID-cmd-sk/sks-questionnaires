@@ -1874,36 +1874,90 @@ function updateOverlay(msg, pct) {
 
 // ── Google Drive upload (via Apps Script) ──────────────────
 async function uploadToGoogleDrive(blob, filename) {
+
   console.log('Uploading ZIP...');
-  console.log(webAppUrl);
+
   const webAppUrl = SKS_CFG.GSHEET_WEBAPP_URL;
+
+  console.log('Apps Script URL:', webAppUrl);
+
   if (!webAppUrl) {
     console.warn('Drive upload not configured — skipping');
     return null;
   }
 
-  // Convert blob to base64
-  const arrayBuffer = await blob.arrayBuffer();
-  const bytes = new Uint8Array(arrayBuffer);
-  let binary = '';
-  // Process in chunks to avoid stack overflow on large files
-  const chunkSize = 8192;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  try {
+
+    // Convert blob to base64
+    const arrayBuffer = await blob.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuffer);
+
+    let binary = '';
+
+    // Process in chunks to avoid stack overflow
+    const chunkSize = 8192;
+
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode.apply(
+        null,
+        bytes.subarray(i, i + chunkSize)
+      );
+    }
+
+    const base64 = btoa(binary);
+
+    console.log('ZIP converted to base64');
+
+    // Send to Apps Script
+    const res = await fetch(webAppUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain'
+      },
+      body: JSON.stringify({
+        action: 'upload_zip',
+        filename,
+        file_base64: base64
+      })
+    });
+
+    console.log('Drive response status:', res.status);
+
+    const responseText = await res.text();
+
+    console.log('Drive raw response:', responseText);
+
+    if (!res.ok) {
+      throw new Error(`Drive upload HTTP ${res.status}`);
+    }
+
+    let j;
+
+    try {
+      j = JSON.parse(responseText);
+    } catch (e) {
+      throw new Error('Invalid JSON response from Apps Script');
+    }
+
+    console.log('Parsed Drive response:', j);
+
+    if (!j.success) {
+      throw new Error(j.error || 'Drive upload failed');
+    }
+
+    console.log('Drive upload successful');
+
+    return {
+      file_url: j.file_url,
+      download_url: j.download_url
+    };
+
+  } catch (err) {
+
+    console.error('UPLOAD ERROR:', err);
+
+    throw err;
   }
-  const base64 = btoa(binary);
-
-  // Send as text/plain — avoids CORS preflight, Apps Script handles it fine
-  const res = await fetch(webAppUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action: 'upload_zip', filename, file_base64: base64 })
-  });
-
-  if (!res.ok) throw new Error(`Drive upload HTTP ${res.status}`);
-  const j = await res.json();
-  if (!j.success) throw new Error(j.error || 'Drive upload failed');
-  return { file_url: j.file_url, download_url: j.download_url };
 }
 
 // ── Supabase insert ────────────────────────────────────────
