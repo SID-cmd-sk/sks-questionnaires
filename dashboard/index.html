@@ -320,6 +320,7 @@ const SB_URL = CFG.SUPABASE_URL || '';
 const SB_KEY = CFG.SUPABASE_ANON_KEY || '';
 
 let allRequests = [];
+let _visibleRows = [];
 let activeStatus = '';
 
 // ── Supabase fetch ────────────────────────────────────────
@@ -394,6 +395,7 @@ function applyFilters() {
     (r.email||'').toLowerCase().includes(q) ||
     JSON.stringify(r.machines_json||'').toLowerCase().includes(q)
   );
+  _visibleRows = rows;
   renderTable(rows);
 }
 
@@ -420,12 +422,13 @@ function renderTable(rows) {
     <th>Status</th><th>Submitted</th><th>ZIP</th>
   </tr></thead><tbody>`;
 
-  rows.forEach(r => {
+  rows.forEach((r, i) => {
     const machines = parseMachines(r.machines_json);
     const mNames   = machines.slice(0,2).map(m=>m.machine_name||'—').join(', ');
     const mMore    = machines.length > 2 ? ` +${machines.length-2}` : '';
     const dt       = new Date(r.submitted_at).toLocaleDateString('en-IN');
-    html += `<tr onclick="openDrawer(${JSON.stringify(JSON.stringify(r))})">
+    // Store row index, openDrawer reads from allRequests array — no JSON escaping issues
+    html += `<tr onclick="openDrawer(${i})">
       <td class="td-id">${r.request_id}</td>
       <td class="td-name">${esc(r.customer_name)}</td>
       <td class="td-machines">${esc(mNames)}${mMore}</td>
@@ -441,8 +444,9 @@ function renderTable(rows) {
 }
 
 // ── Detail drawer ─────────────────────────────────────────
-function openDrawer(jsonStr) {
-  const r = JSON.parse(jsonStr);
+function openDrawer(idx) {
+  const r = _visibleRows[idx];
+  if (!r) return;
   const machines = parseMachines(r.machines_json);
   const dt = new Date(r.submitted_at).toLocaleString('en-IN');
 
