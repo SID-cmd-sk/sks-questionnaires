@@ -24,9 +24,9 @@ The admin can open the dashboard, see all pending requests, and click through to
 
 | Page | URL |
 |------|-----|
-| Questionnaire | `https://YOUR_USERNAME.github.io/sks-questionnaires/questionnaire_post.html` |
-| Admin Dashboard | `https://YOUR_USERNAME.github.io/sks-questionnaires/dashboard/` |
-| Client Portal | `https://YOUR_USERNAME.github.io/sks-questionnaires/portal/` |
+| Questionnaire | `https://SID-cmd-sk.github.io/sks-questionnaires/questionnaire_post.html` |
+| Admin Dashboard | `https://SID-cmd-sk.github.io/sks-questionnaires/dashboard/` |
+| Client Portal | `https://SID-cmd-sk.github.io/sks-questionnaires/portal/` |
 
 ---
 
