@@ -14,6 +14,7 @@ window.SKS_CONFIG = {
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXdubW5xeXRldHBjcndmdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzQzMDksImV4cCI6MjA5NDIxMDMwOX0.lYxVmr_6a-7BCq68UvOaiqsAs1xqGpflJZb1fgtDpJo",
   EMAILJS_SERVICE_ID:  "service_r19w6gi",
   EMAILJS_TEMPLATE_ID: "template_hrzjr9r",
+  EMAILJS_TEMPLATE_ADMIN_ID: "template_2hptrfa",
   EMAILJS_PUBLIC_KEY:  "hSrYf7KXECv_l0BEg",
   GSHEET_WEBAPP_URL:   "https://script.google.com/macros/s/AKfycbxd9v57EzjN0cUKc3QPyK2zM_Bl18XhNk2jhHiDoJy-aU-oEIbzAFYVXXJFG1B4Xd1YpA/exec"
 };
@@ -1989,38 +1990,28 @@ async function insertSupabase(payload) {
 // ── EmailJS notification ───────────────────────────────────
 async function sendEmailNotification(params) {
   console.log('EMAIL SEND START');
-  console.log(params);
-  const svcId  = SKS_CFG.EMAILJS_SERVICE_ID;
-  const tplId  = SKS_CFG.EMAILJS_TEMPLATE_ID;
-  const pubKey = SKS_CFG.EMAILJS_PUBLIC_KEY;
+  console.log('EMAIL PAYLOAD:', params);
+  const svcId   = SKS_CFG.EMAILJS_SERVICE_ID;
+  const pubKey  = SKS_CFG.EMAILJS_PUBLIC_KEY;
+  const tplCust = SKS_CFG.EMAILJS_TEMPLATE_ID;       // customer: template_hrzjr9r
+  const tplAdm  = SKS_CFG.EMAILJS_TEMPLATE_ADMIN_ID; // admin:    template_2hptrfa
 
-  if (!svcId || !tplId || !pubKey) {
-    console.warn('EmailJS not configured');
-    return;
-  }
+  if (!svcId || !pubKey) { console.warn('EmailJS not configured'); return; }
 
-  const res = await fetch(
-    'https://api.emailjs.com/api/v1.0/email/send',
-    {
+  const send = async (templateId, label) => {
+    if (!templateId) return;
+    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        service_id: svcId,
-        template_id: tplId,
-        user_id: pubKey,
-        template_params: params
-      })
-    }
-  );
+      body: JSON.stringify({ service_id: svcId, template_id: templateId, user_id: pubKey, template_params: params })
+    });
+    const txt = await res.text();
+    console.log(`EMAIL ${label} STATUS:`, res.status, txt);
+    if (!res.ok) console.error(`EMAIL ${label} FAILED:`, txt);
+  };
 
-  const txt = await res.text();
-
-  console.log('EMAIL STATUS:', res.status);
-  console.log('EMAIL RESPONSE:', txt);
-
-  if (!res.ok) {
-    throw new Error('EmailJS failed');
-  }
+  // Fire both simultaneously — don't let one failure block the other
+  await Promise.allSettled([send(tplCust, 'CUSTOMER'), send(tplAdm, 'ADMIN')]);
 }
 
 // ── Google Sheets append (via Apps Script Web App) ─────────
@@ -2108,13 +2099,15 @@ async function _cloudDispatchInner(zipBlob, zipName, jsonData) {
     machine_count: machines.length
   });
 
-  // 4. Email admin
+  // 4. Email — customer confirmation + admin notification simultaneously
   updateOverlay('Notifying team…', 90);
   const emailPayload = {
     to_name:       'SKS Admin',
+    to_email:      'Sidharthkr1859@gmail.com',  // admin recipient (template_2hptrfa)
+    reply_to:      jsonData.email || '',
     from_name:     jsonData.customer_name || 'Customer',
     customer_name: jsonData.customer_name || '',
-    customer_email:jsonData.email || '',
+    customer_email:jsonData.email || '',         // customer recipient (template_hrzjr9r)
     contact:       jsonData.contact || '',
     request_id:    requestId,
     machine_count: String(machines.length),

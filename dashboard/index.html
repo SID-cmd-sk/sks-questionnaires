@@ -503,17 +503,36 @@ function closeDrawer() {
 // ── Update status ─────────────────────────────────────────
 async function updateStatus(requestId) {
   const newStatus = document.getElementById('new-status').value;
+  const btn = document.querySelector('.update-btn');
+  btn.disabled = true; btn.textContent = 'Updating…';
   try {
-    await sbFetch(`/rest/v1/requests?request_id=eq.${encodeURIComponent(requestId)}`, {
+    const res = await fetch(SB_URL + `/rest/v1/requests?request_id=eq.${encodeURIComponent(requestId)}`, {
       method: 'PATCH',
-      headers: { 'Prefer': 'return=minimal' },
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SB_KEY,
+        'Authorization': `Bearer ${SB_KEY}`,
+        'Prefer': 'return=minimal'
+      },
       body: JSON.stringify({ status: newStatus })
     });
+    if (!res.ok) {
+      const body = await res.text();
+      // status_logs trigger fires — anon needs INSERT on status_logs too
+      if (body.includes('status_logs')) {
+        toast('⚠ Run SQL patch: supabase/patch_add_update_policy.sql', true);
+      } else {
+        toast('Error: ' + body, true);
+      }
+      return;
+    }
     toast('Status updated ✓');
     closeDrawer();
     loadRequests();
   } catch(e) {
     toast('Error: ' + e.message, true);
+  } finally {
+    btn.disabled = false; btn.textContent = 'UPDATE STATUS';
   }
 }
 
