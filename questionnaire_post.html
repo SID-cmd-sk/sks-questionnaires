@@ -2109,8 +2109,8 @@ async function _cloudDispatchInner(zipBlob, zipName, jsonData) {
   // 4. Email — customer confirmation + admin notification simultaneously
   updateOverlay('Notifying team…', 90);
   const emailPayload = {
-    to_name:       'SKS Admin',
-    to_email:      'Sidharthkr1859@gmail.com',  // admin recipient (template_2hptrfa)
+    to_name:       'SKS Post',
+    to_email:      'Sidharth.kumar@sks3d.com',  // admin recipient (template_2hptrfa)
     reply_to:      jsonData.email || '',
     from_name:     jsonData.customer_name || 'Customer',
     customer_name: jsonData.customer_name || '',
