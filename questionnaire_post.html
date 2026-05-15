@@ -2081,7 +2081,14 @@ async function _cloudDispatchInner(zipBlob, zipName, jsonData) {
     status:        'pending',
     submitted_at:  new Date().toISOString()
   };
-  await insertSupabase(dbRow);
+  // Non-blocking: a Supabase RLS/network error must not abort the
+  // email + sheets steps — the customer should still get confirmation.
+  try {
+    await insertSupabase(dbRow);
+  } catch (sbErr) {
+    console.error('Supabase insert failed (non-fatal):', sbErr);
+    // Surface a quiet warning to the admin via console; pipeline continues
+  }
 
   // 3. Google Sheets row
   updateOverlay('Updating tracking sheet…', 75);
@@ -2163,14 +2170,24 @@ function showSuccessModal(requestId, zipUrl) {
 
 // ── Error banner (non-blocking) ────────────────────────────
 function showCloudErrorBanner(msg) {
+  const isDriveErr   = /drive|apps.?script|upload/i.test(msg);
+  const isSupabaseErr= /supabase|42501|rls|row.level/i.test(msg);
+  const headline = isDriveErr   ? '⚠ Drive upload failed'
+                 : isSupabaseErr? '⚠ Database sync failed'
+                 :                '⚠ Cloud submission issue';
+  const detail   = isDriveErr
+    ? 'Your form ZIP was saved locally. Please email it to the SKS team.'
+    : isSupabaseErr
+    ? 'Form downloaded locally. DB sync failed — run <code>fix_rls_complete.sql</code> in Supabase.'
+    : 'Form downloaded locally. Please email the ZIP to the SKS team.';
   const b = document.createElement('div');
   b.style.cssText = `
     position:fixed;bottom:20px;right:20px;background:#1a1a1a;
     border-left:3px solid #ff6b35;padding:14px 18px;border-radius:6px;
     font-family:'Rajdhani',sans-serif;font-size:13px;color:#aaa;
-    max-width:360px;z-index:9998;box-shadow:0 4px 20px rgba(0,0,0,.5);`;
-  b.innerHTML = `<strong style="color:#ff6b35;">⚠ Cloud upload issue</strong><br>
-    Your form was downloaded locally. Please email the ZIP file to the SKS team.<br>
+    max-width:400px;z-index:9998;box-shadow:0 4px 20px rgba(0,0,0,.5);`;
+  b.innerHTML = `<strong style="color:#ff6b35;">${headline}</strong><br>
+    ${detail}<br>
     <small style="color:#666;">${msg}</small>
     <button onclick="this.closest('div').remove()" style="float:right;background:none;
       border:none;color:#666;cursor:pointer;font-size:16px;margin-top:-2px;">×</button>`;
