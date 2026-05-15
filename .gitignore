@@ -18,7 +18,8 @@ dist/
 database.xlsx
 *.xlsx
 
-# ── Processed ZIPs (large, keep local) ───────────────────────
+# ── ZIP artifacts (large/generated, keep local) ─────────────────
+*.zip
 processed/
 error/
 

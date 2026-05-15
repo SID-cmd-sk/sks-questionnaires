@@ -184,6 +184,13 @@
     font-size: 13px; transition: background .2s; margin-right: 8px;
   }
   .refresh-btn:hover { background: #333; color: var(--text); }
+  .reset-btn {
+    background: rgba(0,111,166,.12); border: 1px solid rgba(0,111,166,.28);
+    color: #6db6dc; padding: 6px 14px; border-radius: 5px;
+    cursor: pointer; font-size: 12px; font-family: 'DM Mono', monospace;
+    letter-spacing: .06em; transition: all .15s;
+  }
+  .reset-btn:hover { background: rgba(0,111,166,.22); color: var(--text); }
   .logout-btn {
     background: rgba(204,0,0,.1); border: 1px solid rgba(204,0,0,.2);
     color: var(--red); padding: 6px 14px; border-radius: 5px;
@@ -418,6 +425,7 @@
   <div class="header-title">REQUEST DASHBOARD</div>
   <div class="header-spacer"></div>
   <button class="refresh-btn" onclick="loadRequests()">↻ Refresh</button>
+  <button class="reset-btn" onclick="resetPassword()">RESET PASSWORD</button>
   <button class="logout-btn" onclick="doLogout()">LOGOUT</button>
 </div>
 
@@ -516,29 +524,15 @@
 //  SECURITY LAYER — PBKDF2 + SHA-256 + lockout
 // ══════════════════════════════════════════════════════════
 // Password hash generated with PBKDF2(SHA-256, 100000 iter, salt below)
-// To change the password: run generateHash() in browser console with your
-// new password, copy the output, and replace STORED_HASH + STORED_SALT below.
-//
-// HOW TO GENERATE A NEW PASSWORD HASH:
-//   1. Open browser DevTools console
-//   2. Paste & run the generateHash() function below
-//   3. Call: generateHash('your_new_password').then(r => console.log(JSON.stringify(r)))
-//   4. Replace STORED_HASH and STORED_SALT with the output values
-//
-// DEFAULT PASSWORD: SKSadmin@2024
-// (Change this immediately after deployment!)
+// To change the password: run generateHash() in the browser console,
+// then replace STORED_HASH and STORED_SALT with the returned values.
 
-const STORED_HASH = "9a3f2e1d8b7c6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1"; // placeholder — replaced by real hash on first run
-const STORED_SALT = "534b5361646d696e5361"; // "SKSadminSa" hex
+const STORED_HASH = "1da38861e8c9f2bad1dbf42d84532b9b2256135ce6057593d794ecf2e825c529";
+const STORED_SALT = "534b5361646d696e5361";
 const PBKDF2_ITER = 100000;
 
-// ── We store a real hash generated at script load time for the default password
-// This is a self-initializing system: on first page load, if STORED_HASH is the
-// placeholder, we generate the real hash for the default password automatically.
-let REAL_HASH = null;
-let REAL_SALT = null;
-
-const DEFAULT_PW = "SKSadmin@2024";
+let REAL_HASH = STORED_HASH;
+let REAL_SALT = STORED_SALT;
 
 async function deriveKey(password, saltHex) {
   const enc = new TextEncoder();
@@ -573,24 +567,29 @@ window.generateHash = async function(pw) {
   return { hash, salt, note: `Replace STORED_HASH and STORED_SALT in dashboard/index.html` };
 };
 
-// Init: generate real hash for default password on load
-(async () => {
-  REAL_SALT = STORED_SALT;
-  REAL_HASH = await deriveKey(DEFAULT_PW, STORED_SALT);
-})();
-
 // ── Lockout state ──
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS   = 5 * 60 * 1000; // 5 minutes
 const LS_KEY_ATTEMPTS = 'sks_dash_attempts';
 const LS_KEY_LOCKOUT  = 'sks_dash_lockout';
 const LS_KEY_AUTHED   = 'sks_dash_authed';
+const LS_KEY_HASH     = 'sks_dash_hash';
+const LS_KEY_SALT     = 'sks_dash_salt';
 const SESSION_TTL_MS  = 4 * 60 * 60 * 1000; // 4-hour session
 
 function getAttempts()  { return parseInt(sessionStorage.getItem(LS_KEY_ATTEMPTS)||'0'); }
 function setAttempts(n) { sessionStorage.setItem(LS_KEY_ATTEMPTS, n); }
 function getLockout()   { return parseInt(sessionStorage.getItem(LS_KEY_LOCKOUT)||'0'); }
 function setLockout(ts) { sessionStorage.setItem(LS_KEY_LOCKOUT, ts); }
+
+function loadStoredCredentials() {
+  const savedHash = localStorage.getItem(LS_KEY_HASH);
+  const savedSalt = localStorage.getItem(LS_KEY_SALT);
+  if (savedHash && savedSalt) {
+    REAL_HASH = savedHash;
+    REAL_SALT = savedSalt;
+  }
+}
 
 function updateDots(attempts) {
   for (let i = 0; i < 5; i++) {
@@ -609,6 +608,7 @@ function lockoutRemaining() {
 
 // Check session on load
 (function checkSession() {
+  loadStoredCredentials();
   const authed = sessionStorage.getItem(LS_KEY_AUTHED);
   if (authed && (Date.now() - parseInt(authed)) < SESSION_TTL_MS) {
     revealDashboard();
@@ -706,6 +706,41 @@ function revealDashboard() {
   document.getElementById('login-gate').style.display = 'none';
   document.getElementById('dashboard').style.display  = 'block';
   loadRequests();
+}
+
+async function resetPassword() {
+  const currentPw = window.prompt('Enter current admin password');
+  if (currentPw === null) return;
+
+  const currentHash = await deriveKey(currentPw, REAL_SALT);
+  if (currentHash !== REAL_HASH) {
+    toast('Current password is incorrect', true);
+    return;
+  }
+
+  const nextPw = window.prompt('Enter new admin password');
+  if (nextPw === null) return;
+  if (!nextPw) {
+    toast('Password cannot be empty', true);
+    return;
+  }
+
+  const confirmPw = window.prompt('Confirm new admin password');
+  if (confirmPw === null) return;
+  if (nextPw !== confirmPw) {
+    toast('Passwords do not match', true);
+    return;
+  }
+
+  const salt = randomHex(16);
+  const hash = await deriveKey(nextPw, salt);
+  localStorage.setItem(LS_KEY_HASH, hash);
+  localStorage.setItem(LS_KEY_SALT, salt);
+  REAL_HASH = hash;
+  REAL_SALT = salt;
+  setAttempts(0);
+  setLockout(0);
+  toast('Password reset ✓');
 }
 
 function doLogout() {
