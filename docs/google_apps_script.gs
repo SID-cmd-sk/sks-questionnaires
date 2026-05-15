@@ -2,13 +2,11 @@ const SHEET_NAME      = "SKS Submissions";
 const DRIVE_FOLDER    = "SKS Submissions";
 const DRIVE_FOLDER_ID = "12cOfmeyNQL7Te0y6Ce1pgD0vbe_bc-FH";
 const SPREADSHEET_ID  = "";
-
 const HEADERS = [
   "Request ID", "Customer Name", "Company",
   "Machine(s)", "Controller(s)", "Date Submitted",
   "Status", "Drive File", "Email", "Contact", "Machine Count"
 ];
-
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
@@ -18,15 +16,12 @@ function doPost(e) {
     return jsonResponse({ success: false, error: err.message });
   }
 }
-
 function doGet() {
   return jsonResponse({ status: "ok", sheet: SHEET_NAME, folder: DRIVE_FOLDER });
 }
-
 function doOptions() {
   return ContentService.createTextOutput("").setMimeType(ContentService.MimeType.TEXT);
 }
-
 function handleDriveUpload(data) {
   if (!data.file_base64 || !data.filename)
     return jsonResponse({ success: false, error: "Missing file_base64 or filename" });
@@ -41,8 +36,8 @@ function handleDriveUpload(data) {
     return jsonResponse({
       success:      true,
       file_id:      fileId,
-      file_url:     "https://drive.google.com/file/d/" + fileId + "/view?usp=sharing",
-      download_url: "https://drive.google.com/uc?export=download&id=" + fileId,
+      file_url:     "https:
+      download_url: "https:
       filename:     filename
     });
   } catch (err) {
@@ -50,7 +45,6 @@ function handleDriveUpload(data) {
     return jsonResponse({ success: false, error: err.message });
   }
 }
-
 function deduplicateFilename(folder, filename) {
   const dotIdx = filename.lastIndexOf('.');
   const base   = dotIdx >= 0 ? filename.slice(0, dotIdx) : filename;
@@ -59,7 +53,6 @@ function deduplicateFilename(folder, filename) {
   while (folder.getFilesByName(name).hasNext()) name = base + '_' + counter++ + ext;
   return name;
 }
-
 function handleSheetAppend(data) {
   try {
     const ss = getSpreadsheet();
@@ -92,7 +85,6 @@ function handleSheetAppend(data) {
     return jsonResponse({ success: false, error: err.message });
   }
 }
-
 function getSpreadsheet() {
   if (SPREADSHEET_ID && SPREADSHEET_ID.trim())
     return SpreadsheetApp.openById(SPREADSHEET_ID.trim());
@@ -100,7 +92,6 @@ function getSpreadsheet() {
   if (!ss) throw new Error("Set SPREADSHEET_ID for standalone deployment.");
   return ss;
 }
-
 function updateStatusInSheet(requestId, newStatus) {
   try {
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAME);
@@ -118,7 +109,6 @@ function updateStatusInSheet(requestId, newStatus) {
     }
   } catch (err) { Logger.log("updateStatusInSheet error: " + err.message); }
 }
-
 function jsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }

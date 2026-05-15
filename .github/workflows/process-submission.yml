@@ -1,11 +1,9 @@
 name: SKS — Process New Submission
 
 on:
-  # Triggered via repository_dispatch from Supabase webhook or direct API call
   repository_dispatch:
     types: [new_submission]
 
-  # Also allow manual trigger for testing
   workflow_dispatch:
     inputs:
       request_id:
@@ -19,11 +17,9 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      # ── 1. Checkout repo ─────────────────────────────────
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ── 2. Setup Python ──────────────────────────────────
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -32,7 +28,6 @@ jobs:
       - name: Install dependencies
         run: pip install requests openpyxl
 
-      # ── 3. Fetch submission from Supabase ─────────────────
       - name: Fetch submission data
         id: fetch
         env:
@@ -48,7 +43,6 @@ jobs:
           req_id = os.environ.get('REQUEST_ID', '')
 
           if not req_id:
-              # fetch latest pending
               url = f"{sb_url}/rest/v1/requests?status=eq.pending&order=submitted_at.desc&limit=1"
           else:
               url = f"{sb_url}/rest/v1/requests?request_id=eq.{req_id}"
@@ -76,7 +70,6 @@ jobs:
                   f.write(f"customer_name={row['customer_name']}\n")
           PYEOF
 
-      # ── 4. Download ZIP from Google Drive ────────────────
       - name: Download ZIP artifact
         if: steps.fetch.outputs.found == 'true'
         run: |
@@ -93,9 +86,6 @@ jobs:
               os.makedirs('artifacts', exist_ok=True)
               fname = row.get('zip_filename', 'submission.zip')
 
-              # Convert Google Drive share URL to direct download URL
-              # view URL:  https://drive.google.com/file/d/FILE_ID/view...
-              # download:  https://drive.google.com/uc?export=download&id=FILE_ID
               match = re.search(r'/d/([a-zA-Z0-9_-]+)', zip_url)
               if match:
                   file_id = match.group(1)
@@ -110,7 +100,6 @@ jobs:
               print(f"Downloaded: artifacts/{fname}")
           PYEOF
 
-      # ── 5. Validate ZIP structure ─────────────────────────
       - name: Validate submission ZIP
         if: steps.fetch.outputs.found == 'true'
         run: |
@@ -129,25 +118,21 @@ jobs:
               for n in names:
                   print(f"  {n}")
 
-              # Check for required data.json
               json_files = [n for n in names if os.path.basename(n).lower() == 'data.json']
               if not json_files:
                   print("::error::data.json not found in ZIP!")
                   exit(1)
 
-              # Extract and validate JSON
               with zf.open(json_files[0]) as jf:
                   data = json.load(jf)
 
               assert data.get('customer_name'), "customer_name missing"
               print(f"✓ Valid submission: {data['customer_name']} — {len(data.get('machines',[]))} machine(s)")
 
-          # Write validation result
           with open('validation_result.json', 'w') as f:
               json.dump({'valid': True, 'zip_path': zpath}, f)
           PYEOF
 
-      # ── 6. Generate metadata JSON ─────────────────────────
       - name: Generate metadata
         if: steps.fetch.outputs.found == 'true'
         run: |
@@ -182,7 +167,6 @@ jobs:
           print(f"Metadata written: {out}")
           PYEOF
 
-      # ── 7. Update Supabase status → in_progress ───────────
       - name: Mark request as in_progress
         if: steps.fetch.outputs.found == 'true'
         env:
@@ -209,7 +193,6 @@ jobs:
           print(f"✓ {req_id} → in_progress")
           PYEOF
 
-      # ── 8. Send admin notification email ─────────────────
       - name: Notify admin via EmailJS
         if: steps.fetch.outputs.found == 'true'
         env:
@@ -267,7 +250,6 @@ jobs:
               print(f"::warning::Email notification failed: {e}")
           PYEOF
 
-      # ── 9. Upload metadata as GitHub artifact ─────────────
       - name: Upload artifacts
         if: steps.fetch.outputs.found == 'true'
         uses: actions/upload-artifact@v4
@@ -276,7 +258,6 @@ jobs:
           path: artifacts/
           retention-days: 90
 
-      # ── 10. Summary ───────────────────────────────────────
       - name: Job summary
         if: always()
         run: |
