@@ -7,13 +7,13 @@ CREATE TABLE IF NOT EXISTS customers (
 );
 CREATE TABLE IF NOT EXISTS requests (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  request_id    TEXT UNIQUE NOT NULL,       
+  request_id    TEXT UNIQUE NOT NULL,
   customer_name TEXT NOT NULL,
   email         TEXT,
   contact       TEXT,
   machine_count INT DEFAULT 0,
-  machines_json JSONB,                      
-  zip_url       TEXT,                       
+  machines_json JSONB,
+  zip_url       TEXT,
   json_url      TEXT,
   zip_filename  TEXT,
   status        TEXT DEFAULT 'pending'
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS uploaded_files (
   request_id    TEXT REFERENCES requests(request_id) ON DELETE CASCADE,
   filename      TEXT NOT NULL,
   file_url      TEXT NOT NULL,
-  file_type     TEXT,                       
+  file_type     TEXT,
   file_size_kb  INT,
   uploaded_at   TIMESTAMPTZ DEFAULT now()
 );
@@ -72,7 +72,7 @@ CREATE POLICY "allow_public_insert_requests"
   ON requests FOR INSERT TO anon WITH CHECK (true);
 CREATE POLICY "allow_public_read_own_request"
   ON requests FOR SELECT TO anon
-  USING (true);   
+  USING (true);
 CREATE POLICY "allow_public_update_requests"
   ON requests FOR UPDATE TO anon
   USING (true)

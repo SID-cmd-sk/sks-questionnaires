@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SKS Admin — Secure Login</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>SKS Admin — Secure Login</title><link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/><style>:root {
     --red: #CC0000; --darkred: #A00000;
     --bg: #0f0f0f; --card: #1a1a1a; --border: #2a2a2a;
     --text: #e8e8e8; --muted: #888; --accent: #006FA6;
@@ -15,6 +7,7 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
 
+  
   #login-gate {
     display: flex; align-items: center; justify-content: center;
     min-height: 100vh; padding: 20px;
@@ -37,13 +30,38 @@
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  .login-logo { font-family: 'Rajdhani', sans-serif; color: var(--red); font-size: 28px; font-weight: 700; letter-spacing: .04em; margin-bottom: 4px; }
-  .login-sub  { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 32px; }
-  .lock-icon  { width: 52px; height: 52px; border-radius: 12px; background: rgba(204,0,0,.1); border: 1px solid rgba(204,0,0,.2); display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 28px; }
-  .login-title { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: .04em; margin-bottom: 6px; }
-  .login-hint  { font-size: 12px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+  .login-logo {
+    font-family: 'Rajdhani', sans-serif; color: var(--red);
+    font-size: 28px; font-weight: 700; letter-spacing: .04em;
+    margin-bottom: 4px;
+  }
+  .login-sub {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: .14em; text-transform: uppercase;
+    margin-bottom: 32px;
+  }
 
-  .field-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 7px; display: block; }
+  .lock-icon {
+    width: 52px; height: 52px; border-radius: 12px;
+    background: rgba(204,0,0,.1); border: 1px solid rgba(204,0,0,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin-bottom: 28px;
+  }
+
+  .login-title {
+    font-family: 'Rajdhani', sans-serif; font-size: 20px;
+    font-weight: 700; letter-spacing: .04em; margin-bottom: 6px;
+  }
+  .login-hint {
+    font-size: 12px; color: var(--muted); margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .field-label {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: .12em; text-transform: uppercase;
+    margin-bottom: 7px; display: block;
+  }
   .pw-wrap { position: relative; margin-bottom: 16px; }
   .pw-input {
     width: 100%; background: var(--bg);
@@ -53,8 +71,15 @@
     outline: none; transition: border-color .2s, box-shadow .2s;
     letter-spacing: .06em;
   }
-  .pw-input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(204,0,0,.12); }
-  .pw-input.error { border-color: var(--red); box-shadow: 0 0 0 3px rgba(204,0,0,.18); animation: shake .35s ease; }
+  .pw-input:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(204,0,0,.12);
+  }
+  .pw-input.error {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(204,0,0,.18);
+    animation: shake .35s ease;
+  }
   @keyframes shake {
     0%,100% { transform: translateX(0); }
     20% { transform: translateX(-6px); }
@@ -62,789 +87,797 @@
     60% { transform: translateX(-4px); }
     80% { transform: translateX(4px); }
   }
-  .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; padding: 2px; transition: color .15s; }
+  .pw-toggle {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 16px; padding: 2px;
+    transition: color .15s;
+  }
   .pw-toggle:hover { color: var(--text); }
 
-  .error-msg { font-size: 12px; color: var(--red); margin-bottom: 12px; display: none; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; }
+  .error-msg {
+    font-size: 12px; color: var(--red); margin-bottom: 12px;
+    display: none; align-items: center; gap: 6px;
+    font-family: 'DM Mono', monospace;
+  }
   .error-msg.visible { display: flex; }
 
-  .lockout-msg { background: rgba(204,0,0,.08); border: 1px solid rgba(204,0,0,.2); border-radius: 6px; padding: 10px 14px; font-size: 12px; color: var(--red); font-family: 'DM Mono', monospace; text-align: center; display: none; margin-bottom: 14px; }
+  
+  .lockout-msg {
+    background: rgba(204,0,0,.08); border: 1px solid rgba(204,0,0,.2);
+    border-radius: 6px; padding: 10px 14px;
+    font-size: 12px; color: var(--red);
+    font-family: 'DM Mono', monospace; text-align: center;
+    display: none; margin-bottom: 14px;
+  }
   .lockout-msg.visible { display: block; }
 
-  .login-btn { width: 100%; background: linear-gradient(135deg, var(--red), var(--darkred)); color: #fff; border: none; padding: 13px; border-radius: 7px; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: .10em; cursor: pointer; transition: opacity .15s, transform .1s; margin-top: 4px; }
+  .login-btn {
+    width: 100%; background: linear-gradient(135deg, var(--red), var(--darkred));
+    color: #fff; border: none; padding: 13px;
+    border-radius: 7px; font-family: 'Rajdhani', sans-serif;
+    font-size: 16px; font-weight: 700; letter-spacing: .10em;
+    cursor: pointer; transition: opacity .15s, transform .1s;
+    margin-top: 4px;
+  }
   .login-btn:hover:not(:disabled) { opacity: .88; }
   .login-btn:active:not(:disabled) { transform: scale(.99); }
   .login-btn:disabled { opacity: .45; cursor: not-allowed; }
 
-  .login-footer { margin-top: 24px; text-align: center; font-size: 11px; color: var(--muted); line-height: 1.6; }
+  .login-footer {
+    margin-top: 24px; text-align: center;
+    font-size: 11px; color: var(--muted);
+    line-height: 1.6;
+  }
   .login-footer a { color: var(--muted); text-decoration: underline; }
 
-  .attempts-indicator { display: flex; gap: 5px; justify-content: center; margin-top: 16px; }
-  .att-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: background .3s; }
+  .attempts-indicator {
+    display: flex; gap: 5px; justify-content: center; margin-top: 16px;
+  }
+  .att-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--border); transition: background .3s;
+  }
   .att-dot.used { background: var(--red); }
 
-  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; display: none; }
+  
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin .7s linear infinite; vertical-align: middle;
+    margin-right: 6px; display: none;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  
   #dashboard { display: none; }
 
-  .header { background: var(--card); border-bottom: 2px solid var(--red); padding: 0 28px; display: flex; align-items: center; gap: 16px; height: 58px; }
-  .header-brand .logo { color: var(--red); font-size: 22px; font-weight: 700; font-family: 'Rajdhani', sans-serif; }
+  
+  .header {
+    background: var(--card); border-bottom: 2px solid var(--red);
+    padding: 0 28px; display: flex; align-items: center;
+    gap: 16px; height: 58px;
+  }
+  .header-brand { font-family: 'Rajdhani', sans-serif; }
+  .header-brand .logo { color: var(--red); font-size: 22px; font-weight: 700; }
   .header-brand .sub  { color: var(--muted); font-size: 11px; letter-spacing: .08em; }
-  .header-title { color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 600; letter-spacing: .06em; border-left: 1px solid var(--border); padding-left: 16px; margin-left: 4px; }
+  .header-title { color: var(--text); font-family: 'Rajdhani', sans-serif;
+    font-size: 17px; font-weight: 600; letter-spacing: .06em;
+    border-left: 1px solid var(--border); padding-left: 16px; margin-left: 4px; }
   .header-spacer { flex: 1; }
-  .refresh-btn { background: var(--border); border: none; color: var(--muted); padding: 7px 16px; border-radius: 5px; cursor: pointer; font-size: 13px; transition: background .2s; margin-right: 8px; }
+  .refresh-btn {
+    background: var(--border); border: none; color: var(--muted);
+    padding: 7px 16px; border-radius: 5px; cursor: pointer;
+    font-size: 13px; transition: background .2s; margin-right: 8px;
+  }
   .refresh-btn:hover { background: #333; color: var(--text); }
-  .logout-btn { background: rgba(204,0,0,.1); border: 1px solid rgba(204,0,0,.2); color: var(--red); padding: 6px 14px; border-radius: 5px; cursor: pointer; font-size: 12px; font-family: 'DM Mono', monospace; letter-spacing: .06em; transition: all .15s; }
+  .logout-btn {
+    background: rgba(204,0,0,.1); border: 1px solid rgba(204,0,0,.2);
+    color: var(--red); padding: 6px 14px; border-radius: 5px;
+    cursor: pointer; font-size: 12px; font-family: 'DM Mono', monospace;
+    letter-spacing: .06em; transition: all .15s;
+  }
   .logout-btn:hover { background: rgba(204,0,0,.2); }
 
+  
   .layout { display: flex; height: calc(100vh - 58px); }
-  .sidebar { width: 220px; background: var(--card); border-right: 1px solid var(--border); padding: 20px 0; flex-shrink: 0; }
+  .sidebar { width: 220px; background: var(--card);
+    border-right: 1px solid var(--border); padding: 20px 0; flex-shrink: 0; }
   .main { flex: 1; overflow-y: auto; padding: 24px 28px; }
 
-  .nav-section { padding: 0 14px; margin-bottom: 6px; font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; font-family: 'Rajdhani', sans-serif; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 18px; cursor: pointer; transition: background .15s; font-size: 14px; color: var(--muted); border-left: 3px solid transparent; }
+  
+  .nav-section { padding: 0 14px; margin-bottom: 6px;
+    font-size: 10px; color: var(--muted); letter-spacing: .1em;
+    text-transform: uppercase; font-family: 'Rajdhani', sans-serif; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px; cursor: pointer; transition: background .15s;
+    font-size: 14px; color: var(--muted); border-left: 3px solid transparent;
+  }
   .nav-item:hover  { background: rgba(204,0,0,.07); color: var(--text); }
-  .nav-item.active { background: rgba(204,0,0,.12); color: var(--text); border-left-color: var(--red); }
-  .nav-badge { margin-left: auto; background: var(--red); color: #fff; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .nav-item.active { background: rgba(204,0,0,.12); color: var(--text);
+    border-left-color: var(--red); }
+  .nav-badge {
+    margin-left: auto; background: var(--red);
+    color: #fff; font-size: 11px; font-weight: 600;
+    padding: 1px 7px; border-radius: 10px;
+  }
 
-  .analytics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  
+  .analytics { display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-bottom: 24px; }
   @media(max-width:900px) {
     .analytics { grid-template-columns: repeat(2, 1fr); }
     .sidebar { width: 52px; }
     .nav-item span, .nav-section, .nav-badge { display: none; }
     .nav-item { justify-content: center; padding: 12px; }
   }
-  .a-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; }
-  .a-card-val { font-family: 'Rajdhani', sans-serif; font-size: 34px; font-weight: 700; }
-  .a-card-lbl { font-size: 12px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
+  .a-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px 20px;
+  }
+  .a-card-val { font-family: 'Rajdhani', sans-serif;
+    font-size: 34px; font-weight: 700; }
+  .a-card-lbl { font-size: 12px; color: var(--muted); letter-spacing: .06em;
+    text-transform: uppercase; margin-top: 4px; }
   .c-red    { color: var(--red); }
   .c-green  { color: var(--green); }
   .c-orange { color: var(--orange); }
   .c-accent { color: var(--accent); }
 
-  .toolbar { display: flex; gap: 12px; margin-bottom: 18px; align-items: center; flex-wrap: wrap; }
-  .search-box { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 9px 14px; border-radius: 6px; font-size: 14px; flex: 1; min-width: 200px; outline: none; transition: border-color .2s; }
+  
+  .toolbar {
+    display: flex; gap: 12px; margin-bottom: 18px; align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: 9px 14px; border-radius: 6px;
+    font-size: 14px; flex: 1; min-width: 200px; outline: none;
+    transition: border-color .2s;
+  }
   .search-box:focus { border-color: var(--red); }
-  .filter-select { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 9px 12px; border-radius: 6px; font-size: 13px; outline: none; cursor: pointer; }
+  .filter-select {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: 9px 12px; border-radius: 6px;
+    font-size: 13px; outline: none; cursor: pointer;
+  }
 
-  .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  
+  .table-wrap {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
   table { width: 100%; border-collapse: collapse; }
-  thead th { background: #111; padding: 11px 14px; text-align: left; font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; cursor: pointer; }
+  thead th {
+    background: #111; padding: 11px 14px; text-align: left;
+    font-size: 11px; color: var(--muted); letter-spacing: .08em;
+    text-transform: uppercase; font-weight: 600;
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .12s; cursor: pointer;
+  }
   tbody tr:last-child { border-bottom: none; }
   tbody tr:hover { background: rgba(255,255,255,.03); }
   tbody td { padding: 12px 14px; font-size: 13px; vertical-align: middle; }
-  .td-id   { font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--red); font-size: 14px; }
+  .td-id   { font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    color: var(--red); font-size: 14px; }
   .td-name { font-weight: 600; }
   .td-machines { color: var(--muted); font-size: 12px; }
 
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-family: 'Rajdhani', sans-serif; }
-  .badge-pending     { background: rgba(212,160,0,.15); color: var(--yellow); border: 1px solid rgba(212,160,0,.3); }
-  .badge-in_progress { background: rgba(0,111,166,.15); color: var(--accent); border: 1px solid rgba(0,111,166,.3); }
-  .badge-delivered   { background: rgba(0,168,107,.15); color: var(--green);  border: 1px solid rgba(0,168,107,.3); }
-  .badge-cancelled   { background: rgba(100,100,100,.15); color: #666; border: 1px solid #333; }
+  
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; font-family: 'Rajdhani', sans-serif;
+  }
+  .badge-pending    { background: rgba(212,160,0,.15); color: var(--yellow); border: 1px solid rgba(212,160,0,.3); }
+  .badge-in_progress{ background: rgba(0,111,166,.15); color: var(--accent); border: 1px solid rgba(0,111,166,.3); }
+  .badge-delivered  { background: rgba(0,168,107,.15); color: var(--green);  border: 1px solid rgba(0,168,107,.3); }
+  .badge-cancelled  { background: rgba(100,100,100,.15); color: #666; border: 1px solid #333; }
 
-  .dl-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: all .15s; text-decoration: none; display: inline-block; }
+  .dl-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); padding: 4px 10px; border-radius: 4px;
+    font-size: 12px; cursor: pointer; transition: all .15s;
+    text-decoration: none; display: inline-block;
+  }
   .dl-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  .drawer { position: fixed; right: 0; top: 58px; bottom: 0; width: 420px; background: var(--card); border-left: 1px solid var(--border); overflow-y: auto; padding: 24px; z-index: 100; transform: translateX(100%); transition: transform .25s ease; }
+  
+  .drawer {
+    position: fixed; right: 0; top: 58px; bottom: 0; width: 420px;
+    background: var(--card); border-left: 1px solid var(--border);
+    overflow-y: auto; padding: 24px; z-index: 100;
+    transform: translateX(100%); transition: transform .25s ease;
+  }
   .drawer.open { transform: translateX(0); }
-  .drawer-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; }
-  .drawer-id { font-family: 'Rajdhani', sans-serif; font-size: 13px; color: var(--red); letter-spacing: .08em; margin-bottom: 4px; }
+  .drawer-close {
+    position: absolute; top: 16px; right: 16px;
+    background: none; border: none; color: var(--muted);
+    font-size: 22px; cursor: pointer;
+  }
+  .drawer-id { font-family: 'Rajdhani', sans-serif; font-size: 13px;
+    color: var(--red); letter-spacing: .08em; margin-bottom: 4px; }
   .drawer-name { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
   .drawer-section { margin-bottom: 20px; }
-  .drawer-section-title { font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 10px; }
+  .drawer-section-title { font-size: 11px; color: var(--muted);
+    letter-spacing: .08em; text-transform: uppercase;
+    border-bottom: 1px solid var(--border); padding-bottom: 6px;
+    margin-bottom: 10px; }
   .drawer-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px; }
   .drawer-row-label { color: var(--muted); min-width: 90px; }
-  .machine-chip { background: #111; border: 1px solid var(--border); border-radius: 5px; padding: 8px 12px; margin-bottom: 8px; font-size: 12px; }
+  .machine-chip {
+    background: #111; border: 1px solid var(--border);
+    border-radius: 5px; padding: 8px 12px; margin-bottom: 8px; font-size: 12px;
+  }
   .machine-chip-name { font-weight: 600; color: var(--text); }
   .machine-chip-meta { color: var(--muted); margin-top: 2px; }
 
-  .status-selector { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 5px; font-size: 13px; width: 100%; outline: none; margin-top: 8px; }
-  .update-btn { background: var(--red); color: #fff; border: none; padding: 9px 20px; border-radius: 5px; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .06em; cursor: pointer; margin-top: 10px; width: 100%; }
+  .status-selector {
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 12px; border-radius: 5px;
+    font-size: 13px; width: 100%; outline: none; margin-top: 8px;
+  }
+  .update-btn {
+    background: var(--red); color: #fff; border: none;
+    padding: 9px 20px; border-radius: 5px; font-family: 'Rajdhani', sans-serif;
+    font-size: 14px; font-weight: 700; letter-spacing: .06em;
+    cursor: pointer; margin-top: 10px; width: 100%;
+  }
   .update-btn:hover { background: var(--darkred); }
 
+  
   .loading { text-align: center; padding: 60px; color: var(--muted); font-size: 14px; }
   .empty   { text-align: center; padding: 60px; color: #444; }
 
-  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; border: 1px solid var(--border); color: var(--text); padding: 10px 24px; border-radius: 6px; font-size: 13px; z-index: 9999; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1a1a1a; border: 1px solid var(--border);
+    color: var(--text); padding: 10px 24px; border-radius: 6px;
+    font-size: 13px; z-index: 9999; opacity: 0; transition: opacity .3s;
+    pointer-events: none;
+  }
   #toast.show { opacity: 1; }
 
-  .pw-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; display: none; align-items: center; justify-content: center; }
-  .pw-modal-overlay.open { display: flex; }
-  .pw-modal { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 32px; width: 100%; max-width: 400px; position: relative; box-shadow: 0 24px 64px rgba(0,0,0,.6); }
-  .pw-modal-title { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: .04em; margin-bottom: 6px; }
-  .pw-modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
-  .pw-modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; }
-  .pw-modal-field { margin-bottom: 16px; }
-  .pw-strength { margin-top: 6px; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
-  .pw-strength-bar { height: 100%; width: 0; border-radius: 2px; transition: width .3s, background .3s; }
-  .pw-strength-label { font-size: 10px; color: var(--muted); margin-top: 4px; font-family: 'DM Mono', monospace; letter-spacing: .08em; }
-  .pw-modal-error { font-size: 12px; color: var(--red); font-family: 'DM Mono', monospace; margin-bottom: 12px; display: none; }
-  .pw-modal-error.visible { display: block; }
-  .pw-modal-success { background: rgba(0,168,107,.08); border: 1px solid rgba(0,168,107,.25); border-radius: 6px; padding: 12px 16px; font-size: 13px; color: var(--green); display: none; margin-bottom: 12px; }
-  .pw-modal-success.visible { display: block; }
-  .pw-save-btn { width: 100%; background: linear-gradient(135deg, var(--red), var(--darkred)); color: #fff; border: none; padding: 12px; border-radius: 7px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .08em; cursor: pointer; margin-top: 4px; transition: opacity .15s; }
-  .pw-save-btn:hover:not(:disabled) { opacity: .88; }
-  .pw-save-btn:disabled { opacity: .45; cursor: not-allowed; }
-</style>
-</head>
-<body>
+  .pw-btn {
+    background: var(--border); border: none; color: var(--muted);
+    padding: 7px 16px; border-radius: 5px; cursor: pointer;
+    font-size: 13px; transition: background .2s; margin-right: 8px;
+  }
+  .pw-btn:hover { background: #333; color: var(--text); }
 
-<div id="login-gate">
-  <div class="login-box">
-    <div class="login-logo">SKS</div>
-    <div class="login-sub">Scantech Engg Exim Pvt. Ltd.</div>
-    <div class="lock-icon">🔒</div>
-    <div class="login-title">Admin Dashboard</div>
-    <p class="login-hint">This area is restricted to authorised SKS staff. Enter your admin password to continue.</p>
-
-    <div class="lockout-msg" id="lockout-msg"></div>
-
-    <label class="field-label" for="pw-field">Password</label>
-    <div class="pw-wrap">
-      <input class="pw-input" type="password" id="pw-field"
-             placeholder="Enter admin password"
-             autocomplete="current-password"
-             onkeydown="if(event.key==='Enter') attemptLogin()">
-      <button class="pw-toggle" type="button" onclick="togglePw('pw-field', this)">👁</button>
-    </div>
-
-    <div class="error-msg" id="error-msg">⚠ Incorrect password</div>
-
-    <button class="login-btn" id="login-btn" onclick="attemptLogin()">
-      <span class="spinner" id="spinner"></span>
+  .pw-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.66);
+    z-index: 2500;
+    padding: 20px;
+  }
+  .pw-modal.open { display: flex; }
+  .pw-modal-card {
+    width: min(460px, 100%);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 32px 80px rgba(0,0,0,.65);
+  }
+  .pw-modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .pw-modal-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .pw-modal-sub {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .pw-modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .pw-form {
+    display: grid;
+    gap: 10px;
+  }
+  .pw-label {
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .pw-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 10px 12px;
+    font: inherit;
+    outline: none;
+  }
+  .pw-input:focus {
+    border-color: var(--accent);
+  }
+  .pw-error {
+    min-height: 18px;
+    font-size: 12px;
+    color: #ff8a8a;
+  }
+  .pw-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 6px;
+  }</style></head><body><div id="login-gate"><div class="login-box"><div class="login-logo">SKS</div><div class="login-sub">Scantech Engg Exim Pvt. Ltd.</div><div class="lock-icon">🔒</div><div class="login-title">Admin Dashboard</div><p class="login-hint">This area is restricted to authorised SKS staff. Enter your admin password to continue.</p><div class="lockout-msg" id="lockout-msg"></div><label class="field-label" for="pw-field">Password</label><div class="pw-wrap"><input autocomplete="current-password" class="pw-input" id="pw-field" onkeydown="if(event.key==='Enter') attemptLogin()" placeholder="Enter admin password" type="password"/><button class="pw-toggle" id="pw-toggle" onclick="togglePw()" title="Show/hide password" type="button">👁</button></div><div class="error-msg" id="error-msg">⚠ Incorrect password</div><button class="login-btn" id="login-btn" onclick="attemptLogin()"><span class="spinner" id="spinner"></span>
       UNLOCK DASHBOARD
-    </button>
-
-    <div class="attempts-indicator" id="att-dots">
-      <div class="att-dot" id="d0"></div>
-      <div class="att-dot" id="d1"></div>
-      <div class="att-dot" id="d2"></div>
-      <div class="att-dot" id="d3"></div>
-      <div class="att-dot" id="d4"></div>
-    </div>
-
-    <div class="login-footer">
-      <a href="../">← Back to Hub</a><br><br>
+    </button><div class="attempts-indicator" id="att-dots"><div class="att-dot" id="d0"></div><div class="att-dot" id="d1"></div><div class="att-dot" id="d2"></div><div class="att-dot" id="d3"></div><div class="att-dot" id="d4"></div></div><div class="login-footer"><a href="../">← Back to Hub</a><br/><br/><br/>
       Account locks after 5 failed attempts
-    </div>
-  </div>
-</div>
-
-<div id="dashboard">
-
-<div class="header">
-  <div class="header-brand">
-    <div class="logo">SKS</div>
-    <div class="sub">SCANTECH ENGG EXIM PVT. LTD.</div>
-  </div>
-  <div class="header-title">REQUEST DASHBOARD</div>
-  <div class="header-spacer"></div>
-  <button class="refresh-btn" onclick="loadRequests()">↻ Refresh</button>
-  <button class="logout-btn" onclick="doLogout()">LOGOUT</button>
-</div>
-
-<div class="layout">
-
-  <nav class="sidebar">
-    <div class="nav-section" style="margin-top:8px;">VIEWS</div>
-    <div class="nav-item active" onclick="filterByStatus('')">
-      <span>📋</span><span>All Requests</span>
-      <span class="nav-badge" id="badge-all">0</span>
-    </div>
-    <div class="nav-item" onclick="filterByStatus('pending')">
-      <span>🟡</span><span>Pending</span>
-      <span class="nav-badge" id="badge-pending" style="background:#d4a000">0</span>
-    </div>
-    <div class="nav-item" onclick="filterByStatus('in_progress')">
-      <span>🔵</span><span>In Progress</span>
-      <span class="nav-badge" id="badge-inprog" style="background:#006FA6">0</span>
-    </div>
-    <div class="nav-item" onclick="filterByStatus('delivered')">
-      <span>🟢</span><span>Delivered</span>
-      <span class="nav-badge" id="badge-delivered" style="background:#00a86b">0</span>
-    </div>
-    <div style="margin-top:16px;">
-      <div class="nav-section">TOOLS</div>
-      <div class="nav-item" onclick="exportCSV()">
-        <span>📥</span><span>Export CSV</span>
-      </div>
-      <div class="nav-item" onclick="openPwModal()">
-        <span>🔑</span><span>Change Password</span>
-      </div>
-    </div>
-  </nav>
-
-  <main class="main">
-
-    <div class="analytics">
-      <div class="a-card">
-        <div class="a-card-val c-red"    id="stat-total">—</div>
-        <div class="a-card-lbl">Total Requests</div>
-      </div>
-      <div class="a-card">
-        <div class="a-card-val c-orange" id="stat-pending">—</div>
-        <div class="a-card-lbl">Pending</div>
-      </div>
-      <div class="a-card">
-        <div class="a-card-val c-accent" id="stat-inprog">—</div>
-        <div class="a-card-lbl">In Progress</div>
-      </div>
-      <div class="a-card">
-        <div class="a-card-val c-green"  id="stat-delivered">—</div>
-        <div class="a-card-lbl">Delivered</div>
-      </div>
-    </div>
-
-    <div class="toolbar">
-      <input class="search-box" type="text" placeholder="🔍  Search customer, machine, request ID…"
-             oninput="applyFilters()" id="search-box">
-      <select class="filter-select" onchange="applyFilters()" id="status-filter">
-        <option value="">All Statuses</option>
-        <option value="pending">Pending</option>
-        <option value="in_progress">In Progress</option>
-        <option value="delivered">Delivered</option>
-        <option value="cancelled">Cancelled</option>
-      </select>
-    </div>
-
-    <div class="table-wrap">
-      <div id="table-body">
-        <div class="loading">Authenticating…</div>
-      </div>
-    </div>
-
-  </main>
-</div>
-
-<div class="drawer" id="drawer">
-  <button class="drawer-close" onclick="closeDrawer()">×</button>
-  <div id="drawer-content"></div>
-</div>
-
-<div id="toast"></div>
-
-</div>
-
-<div class="pw-modal-overlay" id="pw-modal-overlay">
-  <div class="pw-modal">
-    <button class="pw-modal-close" onclick="closePwModal()">×</button>
-    <div class="pw-modal-title">Change Password</div>
-    <div class="pw-modal-sub">Password is stored locally in your browser using PBKDF2 hashing.</div>
-
-    <div class="pw-modal-error" id="pw-modal-error"></div>
-    <div class="pw-modal-success" id="pw-modal-success">✓ Password changed successfully. Use your new password next time you log in.</div>
-
-    <div class="pw-modal-field">
-      <label class="field-label">Current Password</label>
-      <div class="pw-wrap" style="margin-bottom:0">
-        <input class="pw-input" type="password" id="pw-current" placeholder="Enter current password">
-        <button class="pw-toggle" type="button" onclick="togglePw('pw-current', this)">👁</button>
-      </div>
-    </div>
-
-    <div class="pw-modal-field">
-      <label class="field-label">New Password</label>
-      <div class="pw-wrap" style="margin-bottom:0">
-        <input class="pw-input" type="password" id="pw-new" placeholder="Min 8 characters" oninput="checkStrength()">
-        <button class="pw-toggle" type="button" onclick="togglePw('pw-new', this)">👁</button>
-      </div>
-      <div class="pw-strength"><div class="pw-strength-bar" id="pw-strength-bar"></div></div>
-      <div class="pw-strength-label" id="pw-strength-label">—</div>
-    </div>
-
-    <div class="pw-modal-field">
-      <label class="field-label">Confirm New Password</label>
-      <div class="pw-wrap" style="margin-bottom:0">
-        <input class="pw-input" type="password" id="pw-confirm" placeholder="Repeat new password">
-        <button class="pw-toggle" type="button" onclick="togglePw('pw-confirm', this)">👁</button>
-      </div>
-    </div>
-
-    <button class="pw-save-btn" id="pw-save-btn" onclick="saveNewPassword()">SAVE NEW PASSWORD</button>
-  </div>
-</div>
-
-<script>
-const PBKDF2_ITER = 100000;
-const DEFAULT_PW  = "SKSadmin@2024";
-const DEFAULT_SALT = "534b5361646d696e5361";
-const LS_HASH_KEY  = "sks_pw_hash";
-const LS_SALT_KEY  = "sks_pw_salt";
-
-let REAL_HASH = null;
-let REAL_SALT = null;
-
+    </div></div></div><div id="dashboard"><div class="header"><div class="header-brand"><div class="logo">SKS</div><div class="sub">SCANTECH ENGG EXIM PVT. LTD.</div></div><div class="header-title">REQUEST DASHBOARD</div><div class="header-spacer"></div><button class="refresh-btn" onclick="loadRequests()">↻ Refresh</button><button class="pw-btn" onclick="openPasswordModal()">Change Password</button><button class="logout-btn" onclick="doLogout()">LOGOUT</button></div><div class="layout"><nav class="sidebar"><div class="nav-section" style="margin-top:8px;">VIEWS</div><div class="nav-item active" onclick="filterByStatus('')"><span>📋</span><span>All Requests</span><span class="nav-badge" id="badge-all">0</span></div><div class="nav-item" onclick="filterByStatus('pending')"><span>🟡</span><span>Pending</span><span class="nav-badge" id="badge-pending" style="background:#d4a000">0</span></div><div class="nav-item" onclick="filterByStatus('in_progress')"><span>🔵</span><span>In Progress</span><span class="nav-badge" id="badge-inprog" style="background:#006FA6">0</span></div><div class="nav-item" onclick="filterByStatus('delivered')"><span>🟢</span><span>Delivered</span><span class="nav-badge" id="badge-delivered" style="background:#00a86b">0</span></div><div style="margin-top:16px;"><div class="nav-section">TOOLS</div><div class="nav-item" onclick="exportCSV()"><span>📥</span><span>Export CSV</span></div></div></nav><main class="main"><div class="analytics"><div class="a-card"><div class="a-card-val c-red" id="stat-total">—</div><div class="a-card-lbl">Total Requests</div></div><div class="a-card"><div class="a-card-val c-orange" id="stat-pending">—</div><div class="a-card-lbl">Pending</div></div><div class="a-card"><div class="a-card-val c-accent" id="stat-inprog">—</div><div class="a-card-lbl">In Progress</div></div><div class="a-card"><div class="a-card-val c-green" id="stat-delivered">—</div><div class="a-card-lbl">Delivered</div></div></div><div class="toolbar"><input class="search-box" id="search-box" oninput="applyFilters()" placeholder="🔍  Search customer, machine, request ID…" type="text"/><select class="filter-select" id="status-filter" onchange="applyFilters()"><option value="">All Statuses</option><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select></div><div class="table-wrap"><div id="table-body"><div class="loading">Authenticating…</div></div></div></main></div><div class="drawer" id="drawer"><button class="drawer-close" onclick="closeDrawer()">×</button><div id="drawer-content"></div></div><div id="toast"></div><div aria-hidden="true" class="pw-modal" id="pw-modal"><div aria-labelledby="pw-modal-title" aria-modal="true" class="pw-modal-card" role="dialog"><div class="pw-modal-head"><div><div class="pw-modal-title" id="pw-modal-title">Change Password</div><div class="pw-modal-sub">Update the dashboard password securely.</div></div><button aria-label="Close" class="pw-modal-close" onclick="closePasswordModal()" type="button">×</button></div><form class="pw-form" onsubmit="changePassword(event)"><div><div class="pw-label">Current Password</div><input autocomplete="current-password" class="pw-input" id="cp-current" type="password"/></div><div><div class="pw-label">New Password</div><input autocomplete="new-password" class="pw-input" id="cp-new" type="password"/></div><div><div class="pw-label">Confirm Password</div><input autocomplete="new-password" class="pw-input" id="cp-confirm" type="password"/></div><div class="pw-error" id="cp-msg"></div><div class="pw-actions"><button class="refresh-btn" onclick="closePasswordModal()" type="button">Cancel</button><button class="logout-btn" type="submit">Save Password</button></div></form></div></div></div><script>const PBKDF2_ITER = 100000;
+const DEFAULT_CREDENTIALS = Object.freeze({
+    hash: "1da38861e8c9f2bad1dbf42d84532b9b2256135ce6057593d794ecf2e825c529",
+    salt: "534b5361646d696e5361"
+});
+const STORAGE_KEYS = Object.freeze({
+    hash: 'sks_dash_pw_hash',
+    salt: 'sks_dash_pw_salt'
+});
+const LS_KEY_ATTEMPTS = 'sks_dash_attempts';
+const LS_KEY_LOCKOUT = 'sks_dash_lockout';
+const LS_KEY_AUTHED = 'sks_dash_authed';
+const SESSION_TTL_MS = 4 * 60 * 60 * 1000;
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS = 5 * 60 * 1000;
+const DEFAULT_PW_MIN_LENGTH = 8;
+let activeCredentials = null;
+let lockoutInterval = null;
+function deriveKey(password, saltHex) {
+    const enc = new TextEncoder();
+    return crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']).then(keyMaterial => {
+        const saltBytes = hexToBytes(saltHex);
+        return crypto.subtle.deriveBits({
+            name: 'PBKDF2',
+            hash: 'SHA-256',
+            salt: saltBytes,
+            iterations: PBKDF2_ITER
+        }, keyMaterial, 256);
+    }).then(bits => bytesToHex(new Uint8Array(bits)));
+}
 function hexToBytes(hex) {
-  const arr = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < arr.length; i++) arr[i] = parseInt(hex.substr(i*2,2),16);
-  return arr;
+    const arr = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < arr.length; i++)
+        arr[i] = parseInt(hex.substr(i * 2, 2), 16);
+    return arr;
 }
 function bytesToHex(buf) {
-  return Array.from(buf).map(b => b.toString(16).padStart(2,'0')).join('');
+    return Array.from(buf).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 function randomHex(len) {
-  return bytesToHex(crypto.getRandomValues(new Uint8Array(len)));
+    const arr = new Uint8Array(len);
+    crypto.getRandomValues(arr);
+    return bytesToHex(arr);
 }
-
-async function deriveKey(password, saltHex) {
-  const enc = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", hash: "SHA-256", salt: hexToBytes(saltHex), iterations: PBKDF2_ITER },
-    keyMaterial, 256
-  );
-  return bytesToHex(new Uint8Array(bits));
+function getStoredCredentials() {
+    try {
+        const hash = localStorage.getItem(STORAGE_KEYS.hash);
+        const salt = localStorage.getItem(STORAGE_KEYS.salt);
+        if (hash && salt)
+            return { hash, salt };
+        localStorage.setItem(STORAGE_KEYS.hash, DEFAULT_CREDENTIALS.hash);
+        localStorage.setItem(STORAGE_KEYS.salt, DEFAULT_CREDENTIALS.salt);
+    }
+    catch (e) { }
+    return { ...DEFAULT_CREDENTIALS };
 }
-
-async function loadStoredPassword() {
-  const storedHash = localStorage.getItem(LS_HASH_KEY);
-  const storedSalt = localStorage.getItem(LS_SALT_KEY);
-  if (storedHash && storedSalt) {
-    REAL_HASH = storedHash;
-    REAL_SALT = storedSalt;
-  } else {
-    REAL_SALT = DEFAULT_SALT;
-    REAL_HASH = await deriveKey(DEFAULT_PW, DEFAULT_SALT);
-  }
+function setStoredCredentials(hash, salt) {
+    activeCredentials = { hash, salt };
+    try {
+        localStorage.setItem(STORAGE_KEYS.hash, hash);
+        localStorage.setItem(STORAGE_KEYS.salt, salt);
+    }
+    catch (e) { }
 }
-
-loadStoredPassword();
-
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS   = 5 * 60 * 1000;
-const SESSION_TTL_MS = 4 * 60 * 60 * 1000;
-const LS_KEY_ATTEMPTS = 'sks_dash_attempts';
-const LS_KEY_LOCKOUT  = 'sks_dash_lockout';
-const LS_KEY_AUTHED   = 'sks_dash_authed';
-
-function getAttempts()  { return parseInt(sessionStorage.getItem(LS_KEY_ATTEMPTS)||'0'); }
+function getCredentials() {
+    if (!activeCredentials)
+        activeCredentials = getStoredCredentials();
+    return activeCredentials;
+}
+function getAttempts() { return parseInt(sessionStorage.getItem(LS_KEY_ATTEMPTS) || '0'); }
 function setAttempts(n) { sessionStorage.setItem(LS_KEY_ATTEMPTS, n); }
-function getLockout()   { return parseInt(sessionStorage.getItem(LS_KEY_LOCKOUT)||'0'); }
+function getLockout() { return parseInt(sessionStorage.getItem(LS_KEY_LOCKOUT) || '0'); }
 function setLockout(ts) { sessionStorage.setItem(LS_KEY_LOCKOUT, ts); }
-function isLockedOut()  { const u = getLockout(); return u && Date.now() < u; }
-function lockoutRemaining() { return Math.ceil((getLockout() - Date.now()) / 1000); }
-
 function updateDots(attempts) {
-  for (let i = 0; i < 5; i++)
-    document.getElementById('d'+i).classList.toggle('used', i < attempts);
+    for (let i = 0; i < 5; i++) {
+        const dot = document.getElementById('d' + i);
+        if (dot)
+            dot.classList.toggle('used', i < attempts);
+    }
 }
-
-(function checkSession() {
-  const authed = sessionStorage.getItem(LS_KEY_AUTHED);
-  if (authed && (Date.now() - parseInt(authed)) < SESSION_TTL_MS) revealDashboard();
-  updateDots(getAttempts());
-  if (isLockedOut()) startLockoutTimer();
-})();
-
+function isLockedOut() {
+    const until = getLockout();
+    return until && Date.now() < until;
+}
+function lockoutRemaining() {
+    return Math.ceil((getLockout() - Date.now()) / 1000);
+}
 async function attemptLogin() {
-  if (isLockedOut()) return;
-  const pw = document.getElementById('pw-field').value;
-  if (!pw) return;
-
-  const btn     = document.getElementById('login-btn');
-  const spinner = document.getElementById('spinner');
-  const errMsg  = document.getElementById('error-msg');
-
-  btn.disabled = true;
-  spinner.style.display = 'inline-block';
-  errMsg.classList.remove('visible');
-  document.getElementById('pw-field').classList.remove('error');
-
-  await new Promise(r => setTimeout(r, 300 + Math.random()*200));
-  await new Promise(r => { const check = () => REAL_HASH ? r() : setTimeout(check, 50); check(); });
-
-  const inputHash = await deriveKey(pw, REAL_SALT);
-  const match = inputHash === REAL_HASH;
-
-  spinner.style.display = 'none';
-  btn.disabled = false;
-
-  if (match) {
-    setAttempts(0);
-    setLockout(0);
-    sessionStorage.setItem(LS_KEY_AUTHED, Date.now());
-    revealDashboard();
-  } else {
+    if (isLockedOut())
+        return;
+    const input = document.getElementById('pw-field');
+    const pw = input.value;
+    if (!pw)
+        return;
+    const btn = document.getElementById('login-btn');
+    const spinner = document.getElementById('spinner');
+    const errMsg = document.getElementById('error-msg');
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+    errMsg.classList.remove('visible');
+    input.classList.remove('error');
+    await new Promise(r => setTimeout(r, 300 + Math.random() * 200));
+    const { hash, salt } = getCredentials();
+    const inputHash = await deriveKey(pw, salt);
+    spinner.style.display = 'none';
+    btn.disabled = false;
+    if (inputHash === hash) {
+        setAttempts(0);
+        setLockout(0);
+        sessionStorage.setItem(LS_KEY_AUTHED, Date.now());
+        revealDashboard();
+        input.value = '';
+        return;
+    }
     const attempts = getAttempts() + 1;
     setAttempts(attempts);
     updateDots(attempts);
-    document.getElementById('pw-field').classList.add('error');
+    input.classList.add('error');
     errMsg.classList.add('visible');
-    document.getElementById('pw-field').value = '';
+    input.value = '';
     if (attempts >= MAX_ATTEMPTS) {
-      setLockout(Date.now() + LOCKOUT_MS);
-      setAttempts(0);
-      updateDots(0);
-      startLockoutTimer();
+        setLockout(Date.now() + LOCKOUT_MS);
+        setAttempts(0);
+        updateDots(0);
+        startLockoutTimer();
     }
-  }
 }
-
-let lockoutInterval = null;
 function startLockoutTimer() {
-  const btn = document.getElementById('login-btn');
-  const msg = document.getElementById('lockout-msg');
-  const err = document.getElementById('error-msg');
-  const inp = document.getElementById('pw-field');
-  btn.disabled = true; inp.disabled = true;
-  err.classList.remove('visible');
-  function tick() {
-    if (!isLockedOut()) {
-      msg.classList.remove('visible'); msg.textContent = '';
-      btn.disabled = false; inp.disabled = false;
-      clearInterval(lockoutInterval);
-      return;
-    }
-    const s = lockoutRemaining();
-    msg.textContent = `🔒 Too many failed attempts. Try again in ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
-    msg.classList.add('visible');
-  }
-  tick();
-  lockoutInterval = setInterval(tick, 1000);
+    const btn = document.getElementById('login-btn');
+    const msg = document.getElementById('lockout-msg');
+    const err = document.getElementById('error-msg');
+    const inp = document.getElementById('pw-field');
+    btn.disabled = true;
+    inp.disabled = true;
+    err.classList.remove('visible');
+    const tick = () => {
+        if (!isLockedOut()) {
+            msg.classList.remove('visible');
+            msg.textContent = '';
+            btn.disabled = false;
+            inp.disabled = false;
+            clearInterval(lockoutInterval);
+            lockoutInterval = null;
+            return;
+        }
+        const s = lockoutRemaining();
+        const m = Math.floor(s / 60);
+        const sec = s % 60;
+        msg.textContent = `🔒 Too many failed attempts. Try again in ${m}:${String(sec).padStart(2, '0')}`;
+        msg.classList.add('visible');
+    };
+    tick();
+    lockoutInterval = setInterval(tick, 1000);
 }
-
-function togglePw(fieldId, btn) {
-  const f = document.getElementById(fieldId);
-  f.type = f.type === 'password' ? 'text' : 'password';
+function togglePw() {
+    const f = document.getElementById('pw-field');
+    f.type = f.type === 'password' ? 'text' : 'password';
 }
-
 function revealDashboard() {
-  document.getElementById('login-gate').style.display = 'none';
-  document.getElementById('dashboard').style.display  = 'block';
-  loadRequests();
+    document.getElementById('login-gate').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    closePasswordModal();
+    loadRequests();
 }
-
 function doLogout() {
-  sessionStorage.removeItem(LS_KEY_AUTHED);
-  document.getElementById('login-gate').style.display = 'flex';
-  document.getElementById('dashboard').style.display  = 'none';
-  document.getElementById('pw-field').value = '';
-  document.getElementById('error-msg').classList.remove('visible');
-  updateDots(0);
+    sessionStorage.removeItem(LS_KEY_AUTHED);
+    document.getElementById('login-gate').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('pw-field').value = '';
+    document.getElementById('error-msg').classList.remove('visible');
+    closeDrawer();
+    closePasswordModal();
+    updateDots(0);
 }
-
-function openPwModal() {
-  document.getElementById('pw-current').value = '';
-  document.getElementById('pw-new').value = '';
-  document.getElementById('pw-confirm').value = '';
-  document.getElementById('pw-modal-error').classList.remove('visible');
-  document.getElementById('pw-modal-success').classList.remove('visible');
-  document.getElementById('pw-strength-bar').style.width = '0';
-  document.getElementById('pw-strength-label').textContent = '—';
-  document.getElementById('pw-modal-overlay').classList.add('open');
+function openPasswordModal() {
+    const modal = document.getElementById('pw-modal');
+    const msg = document.getElementById('cp-msg');
+    document.getElementById('cp-current').value = '';
+    document.getElementById('cp-new').value = '';
+    document.getElementById('cp-confirm').value = '';
+    msg.textContent = '';
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.getElementById('cp-current').focus();
 }
-
-function closePwModal() {
-  document.getElementById('pw-modal-overlay').classList.remove('open');
+function closePasswordModal() {
+    const modal = document.getElementById('pw-modal');
+    if (!modal)
+        return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    const msg = document.getElementById('cp-msg');
+    if (msg)
+        msg.textContent = '';
 }
-
-function checkStrength() {
-  const pw = document.getElementById('pw-new').value;
-  const bar = document.getElementById('pw-strength-bar');
-  const lbl = document.getElementById('pw-strength-label');
-  let score = 0;
-  if (pw.length >= 8)  score++;
-  if (pw.length >= 12) score++;
-  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-  if (/\d/.test(pw)) score++;
-  if (/[^A-Za-z0-9]/.test(pw)) score++;
-  const levels = [
-    { w: '0%',   color: 'var(--border)', label: '—' },
-    { w: '25%',  color: 'var(--red)',    label: 'WEAK' },
-    { w: '50%',  color: 'var(--orange)', label: 'FAIR' },
-    { w: '75%',  color: 'var(--yellow)', label: 'GOOD' },
-    { w: '90%',  color: 'var(--green)',  label: 'STRONG' },
-    { w: '100%', color: 'var(--green)',  label: 'VERY STRONG' },
-  ];
-  const l = levels[score] || levels[0];
-  bar.style.width = l.w;
-  bar.style.background = l.color;
-  lbl.textContent = l.label;
+async function changePassword(event) {
+    event.preventDefault();
+    const submitBtn = event.submitter || document.querySelector('#pw-modal button[type="submit"]');
+    const msg = document.getElementById('cp-msg');
+    const current = document.getElementById('cp-current').value;
+    const next = document.getElementById('cp-new').value;
+    const confirm = document.getElementById('cp-confirm').value;
+    const credentials = getCredentials();
+    const fail = text => {
+        msg.textContent = text;
+    };
+    if (!current || !next || !confirm)
+        return fail('All fields are required.');
+    if (next.length < DEFAULT_PW_MIN_LENGTH)
+        return fail('New password must be at least 8 characters.');
+    if (next !== confirm)
+        return fail('New password and confirmation do not match.');
+    if (next === current)
+        return fail('New password must be different.');
+    if (submitBtn)
+        submitBtn.disabled = true;
+    try {
+        const currentHash = await deriveKey(current, credentials.salt);
+        if (currentHash !== credentials.hash) {
+            fail('Current password is incorrect.');
+            return;
+        }
+        const nextSalt = randomHex(16);
+        const nextHash = await deriveKey(next, nextSalt);
+        setStoredCredentials(nextHash, nextSalt);
+        msg.textContent = '';
+        closePasswordModal();
+        toast('Password updated ✓');
+    }
+    catch (e) {
+        fail('Password update failed.');
+    }
+    finally {
+        if (submitBtn)
+            submitBtn.disabled = false;
+    }
 }
-
-async function saveNewPassword() {
-  const currentPw  = document.getElementById('pw-current').value;
-  const newPw      = document.getElementById('pw-new').value;
-  const confirmPw  = document.getElementById('pw-confirm').value;
-  const errEl      = document.getElementById('pw-modal-error');
-  const successEl  = document.getElementById('pw-modal-success');
-  const btn        = document.getElementById('pw-save-btn');
-
-  errEl.classList.remove('visible');
-  successEl.classList.remove('visible');
-
-  if (!currentPw || !newPw || !confirmPw) {
-    errEl.textContent = 'All fields are required.';
-    errEl.classList.add('visible');
-    return;
-  }
-  if (newPw.length < 8) {
-    errEl.textContent = 'New password must be at least 8 characters.';
-    errEl.classList.add('visible');
-    return;
-  }
-  if (newPw !== confirmPw) {
-    errEl.textContent = 'New passwords do not match.';
-    errEl.classList.add('visible');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Verifying…';
-
-  await new Promise(r => { const check = () => REAL_HASH ? r() : setTimeout(check, 50); check(); });
-
-  const currentHash = await deriveKey(currentPw, REAL_SALT);
-  if (currentHash !== REAL_HASH) {
-    errEl.textContent = 'Current password is incorrect.';
-    errEl.classList.add('visible');
-    btn.disabled = false;
-    btn.textContent = 'SAVE NEW PASSWORD';
-    return;
-  }
-
-  btn.textContent = 'Saving…';
-  const newSalt = randomHex(16);
-  const newHash = await deriveKey(newPw, newSalt);
-
-  localStorage.setItem(LS_HASH_KEY, newHash);
-  localStorage.setItem(LS_SALT_KEY, newSalt);
-  REAL_HASH = newHash;
-  REAL_SALT = newSalt;
-
-  btn.disabled = false;
-  btn.textContent = 'SAVE NEW PASSWORD';
-  document.getElementById('pw-current').value = '';
-  document.getElementById('pw-new').value = '';
-  document.getElementById('pw-confirm').value = '';
-  document.getElementById('pw-strength-bar').style.width = '0';
-  document.getElementById('pw-strength-label').textContent = '—';
-  successEl.classList.add('visible');
+function checkSession() {
+    const authed = sessionStorage.getItem(LS_KEY_AUTHED);
+    if (authed && (Date.now() - parseInt(authed)) < SESSION_TTL_MS) {
+        revealDashboard();
+    }
+    updateDots(getAttempts());
+    if (isLockedOut())
+        startLockoutTimer();
 }
-
+getCredentials();
+checkSession();
 window.SKS_CONFIG = {
-  CLOUD_ENABLED: true,
-  SUPABASE_URL:      "https://nlewnmnqytetpcrwfvlm.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXdubW5xeXRldHBjcndmdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzQzMDksImV4cCI6MjA5NDIxMDMwOX0.lYxVmr_6a-7BCq68UvOaiqsAs1xqGpflJZb1fgtDpJo",
+    CLOUD_ENABLED: true,
+    SUPABASE_URL: "https://nlewnmnqytetpcrwfvlm.supabase.co",
+    SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXdubW5xeXRldHBjcndmdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzQzMDksImV4cCI6MjA5NDIxMDMwOX0.lYxVmr_6a-7BCq68UvOaiqsAs1xqGpflJZb1fgtDpJo",
+    EMAILJS_SERVICE_ID: "service_r19w6gi",
+    EMAILJS_TEMPLATE_ID: "template_hrzjr9r",
+    EMAILJS_PUBLIC_KEY: "hSrYf7KXECv_l0BEg",
+    GSHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbxd9v57EzjN0cUKc3QPyK2zM_Bl18XhNk2jhHiDoJy-aU-oEIbzAFYVXXJFG1B4Xd1YpA/exec"
 };
-
-const CFG    = window.SKS_CONFIG;
-const SB_URL = CFG.SUPABASE_URL;
-const SB_KEY = CFG.SUPABASE_ANON_KEY;
-
-let allRequests  = [];
+const CFG = window.SKS_CONFIG || {};
+const SB_URL = CFG.SUPABASE_URL || '';
+const SB_KEY = CFG.SUPABASE_ANON_KEY || '';
+let allRequests = [];
 let _visibleRows = [];
 let activeStatus = '';
-
-async function sbFetch(path, opts={}) {
-  const res = await fetch(SB_URL + path, {
-    ...opts,
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SB_KEY,
-      'Authorization': `Bearer ${SB_KEY}`,
-      ...(opts.headers||{})
-    }
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+async function sbFetch(path, opts = {}) {
+    const res = await fetch(SB_URL + path, {
+        ...opts,
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': SB_KEY,
+            'Authorization': `Bearer ${SB_KEY}`,
+            ...(opts.headers || {})
+        }
+    });
+    if (!res.ok)
+        throw new Error(await res.text());
+    return res.json();
 }
-
 async function loadRequests() {
-  document.getElementById('table-body').innerHTML = '<div class="loading">Loading…</div>';
-  try {
-    const data = await sbFetch(
-      '/rest/v1/requests?select=*&order=submitted_at.desc',
-      { headers: { 'Range': '0-499', 'Prefer': 'count=exact' } }
-    );
-    allRequests = data;
-    updateStats(data);
-    applyFilters();
-  } catch(e) {
-    document.getElementById('table-body').innerHTML =
-      `<div class="loading" style="color:#cc0000">Error: ${e.message}<br>
-       <small style="color:#666">Check Supabase config</small></div>`;
-  }
+    document.getElementById('table-body').innerHTML = '<div class="loading">Loading…</div>';
+    try {
+        const data = await sbFetch('/rest/v1/requests?select=*&order=submitted_at.desc', { headers: { 'Range': '0-499', 'Prefer': 'count=exact' } });
+        allRequests = data;
+        updateStats(data);
+        applyFilters();
+    }
+    catch (e) {
+        document.getElementById('table-body').innerHTML =
+            `<div class="loading" style="color:#cc0000">Error: ${e.message}<br><small style="color:#666">Check Supabase config</small></div>`;
+    }
 }
-
 function updateStats(data) {
-  const total   = data.length;
-  const pending = data.filter(r=>r.status==='pending').length;
-  const inprog  = data.filter(r=>r.status==='in_progress').length;
-  const deliv   = data.filter(r=>r.status==='delivered').length;
-  document.getElementById('stat-total').textContent      = total;
-  document.getElementById('stat-pending').textContent    = pending;
-  document.getElementById('stat-inprog').textContent     = inprog;
-  document.getElementById('stat-delivered').textContent  = deliv;
-  document.getElementById('badge-all').textContent       = total;
-  document.getElementById('badge-pending').textContent   = pending;
-  document.getElementById('badge-inprog').textContent    = inprog;
-  document.getElementById('badge-delivered').textContent = deliv;
+    const total = data.length;
+    const pending = data.filter(r => r.status === 'pending').length;
+    const inprog = data.filter(r => r.status === 'in_progress').length;
+    const deliv = data.filter(r => r.status === 'delivered').length;
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-pending').textContent = pending;
+    document.getElementById('stat-inprog').textContent = inprog;
+    document.getElementById('stat-delivered').textContent = deliv;
+    document.getElementById('badge-all').textContent = total;
+    document.getElementById('badge-pending').textContent = pending;
+    document.getElementById('badge-inprog').textContent = inprog;
+    document.getElementById('badge-delivered').textContent = deliv;
 }
-
 function filterByStatus(s) {
-  activeStatus = s;
-  document.getElementById('status-filter').value = s;
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  applyFilters();
+    activeStatus = s;
+    document.getElementById('status-filter').value = s;
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    applyFilters();
 }
-
 function applyFilters() {
-  const q = document.getElementById('search-box').value.toLowerCase();
-  const s = document.getElementById('status-filter').value || activeStatus;
-  let rows = allRequests;
-  if (s) rows = rows.filter(r => r.status === s);
-  if (q) rows = rows.filter(r =>
-    (r.customer_name||'').toLowerCase().includes(q) ||
-    (r.request_id||'').toLowerCase().includes(q) ||
-    (r.email||'').toLowerCase().includes(q) ||
-    JSON.stringify(r.machines_json||'').toLowerCase().includes(q)
-  );
-  _visibleRows = rows;
-  renderTable(rows);
+    const q = document.getElementById('search-box').value.toLowerCase();
+    const s = document.getElementById('status-filter').value || activeStatus;
+    let rows = allRequests;
+    if (s)
+        rows = rows.filter(r => r.status === s);
+    if (q)
+        rows = rows.filter(r => (r.customer_name || '').toLowerCase().includes(q) ||
+            (r.request_id || '').toLowerCase().includes(q) ||
+            (r.email || '').toLowerCase().includes(q) ||
+            JSON.stringify(r.machines_json || '').toLowerCase().includes(q));
+    _visibleRows = rows;
+    renderTable(rows);
 }
-
 function parseMachines(raw) {
-  if (!raw) return [];
-  if (Array.isArray(raw)) return raw;
-  if (typeof raw === 'string') {
-    try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; }
-    catch(e) { return []; }
-  }
-  return [];
+    if (!raw)
+        return [];
+    if (Array.isArray(raw))
+        return raw;
+    if (typeof raw === 'string') {
+        try {
+            const p = JSON.parse(raw);
+            return Array.isArray(p) ? p : [];
+        }
+        catch (e) {
+            return [];
+        }
+    }
+    return [];
 }
-
 function renderTable(rows) {
-  if (!rows.length) {
-    document.getElementById('table-body').innerHTML = '<div class="empty">No requests found.</div>';
-    return;
-  }
-  let html = `<table><thead><tr>
-    <th>Request ID</th><th>Customer</th><th>Machines</th>
-    <th>Status</th><th>Submitted</th><th>ZIP</th>
-  </tr></thead><tbody>`;
-  rows.forEach((r, i) => {
-    const machines = parseMachines(r.machines_json);
-    const mNames   = machines.slice(0,2).map(m=>m.machine_name||'—').join(', ');
-    const mMore    = machines.length > 2 ? ` +${machines.length-2}` : '';
-    const dt       = new Date(r.submitted_at).toLocaleDateString('en-IN');
-    html += `<tr onclick="openDrawer(${i})">
-      <td class="td-id">${r.request_id}</td>
-      <td class="td-name">${esc(r.customer_name)}</td>
-      <td class="td-machines">${esc(mNames)}${mMore}</td>
-      <td><span class="badge badge-${r.status}">${r.status.replace('_',' ')}</span></td>
-      <td style="color:var(--muted);font-size:12px;">${dt}</td>
-      <td>${r.zip_url
-        ? `<a class="dl-btn" href="${r.zip_url}" target="_blank" onclick="event.stopPropagation()">⬇ ZIP</a>`
-        : '<span style="color:#444;font-size:12px;">—</span>'}</td>
-    </tr>`;
-  });
-  html += '</tbody></table>';
-  document.getElementById('table-body').innerHTML = html;
+    if (!rows.length) {
+        document.getElementById('table-body').innerHTML = '<div class="empty">No requests found.</div>';
+        return;
+    }
+    let html = `<table><thead><tr><th>Request ID</th><th>Customer</th><th>Machines</th><th>Status</th><th>Submitted</th><th>ZIP</th></tr></thead><tbody>`;
+    rows.forEach((r, i) => {
+        const machines = parseMachines(r.machines_json);
+        const mNames = machines.slice(0, 2).map(m => m.machine_name || '—').join(', ');
+        const mMore = machines.length > 2 ? ` +${machines.length - 2}` : '';
+        const dt = new Date(r.submitted_at).toLocaleDateString('en-IN');
+        html += `<tr onclick="openDrawer(${i})"><td class="td-id">${r.request_id}</td><td class="td-name">${esc(r.customer_name)}</td><td class="td-machines">${esc(mNames)}${mMore}</td><td><span class="badge badge-${r.status}">${r.status.replace('_', ' ')}</span></td><td style="color:var(--muted);font-size:12px;">${dt}</td><td>${r.zip_url
+            ? `<a class="dl-btn" href="${r.zip_url}" target="_blank" onclick="event.stopPropagation()">⬇ ZIP</a>`
+            : '<span style="color:#444;font-size:12px;">—</span>'}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('table-body').innerHTML = html;
 }
-
 function openDrawer(idx) {
-  const r = _visibleRows[idx];
-  if (!r) return;
-  const machines = parseMachines(r.machines_json);
-  const dt = new Date(r.submitted_at).toLocaleString('en-IN');
-  let machineHtml = machines.map(m => `
-    <div class="machine-chip">
-      <div class="machine-chip-name">${esc(m.machine_name||'—')}</div>
-      <div class="machine-chip-meta">
-        ${esc(m.machine_type||'')}${m.axis?' · '+esc(m.axis):''}${m.controller?' · '+esc(m.controller):''}
-      </div>
-    </div>`).join('') || '<div style="color:var(--muted);font-size:13px;">No machines recorded</div>';
-
-  document.getElementById('drawer-content').innerHTML = `
-    <div class="drawer-id">${r.request_id}</div>
-    <div class="drawer-name">${esc(r.customer_name)}</div>
-    <span class="badge badge-${r.status}">${r.status.replace('_',' ')}</span>
-    <div class="drawer-section" style="margin-top:16px;">
-      <div class="drawer-section-title">Contact</div>
-      <div class="drawer-row"><span class="drawer-row-label">Email</span><span>${esc(r.email||'—')}</span></div>
-      <div class="drawer-row"><span class="drawer-row-label">Phone</span><span>${esc(r.contact||'—')}</span></div>
-      <div class="drawer-row"><span class="drawer-row-label">Submitted</span><span>${dt}</span></div>
-    </div>
-    <div class="drawer-section">
-      <div class="drawer-section-title">Machines (${machines.length})</div>
+    const r = _visibleRows[idx];
+    if (!r)
+        return;
+    const machines = parseMachines(r.machines_json);
+    const dt = new Date(r.submitted_at).toLocaleString('en-IN');
+    let machineHtml = machines.map(m => `
+    <div class="machine-chip"><div class="machine-chip-name">${esc(m.machine_name || '—')}</div><div class="machine-chip-meta">
+        ${esc(m.machine_type || '')}${m.axis ? ' · ' + esc(m.axis) : ''}${m.controller ? ' · ' + esc(m.controller) : ''}
+      </div></div>`).join('') || '<div style="color:var(--muted);font-size:13px;">No machines recorded</div>';
+    document.getElementById('drawer-content').innerHTML = `
+    <div class="drawer-id">${r.request_id}</div><div class="drawer-name">${esc(r.customer_name)}</div><span class="badge badge-${r.status}">${r.status.replace('_', ' ')}</span><div class="drawer-section" style="margin-top:16px;"><div class="drawer-section-title">Contact</div><div class="drawer-row"><span class="drawer-row-label">Email</span><span>${esc(r.email || '—')}</span></div><div class="drawer-row"><span class="drawer-row-label">Phone</span><span>${esc(r.contact || '—')}</span></div><div class="drawer-row"><span class="drawer-row-label">Submitted</span><span>${dt}</span></div></div><div class="drawer-section"><div class="drawer-section-title">Machines (${machines.length})</div>
       ${machineHtml}
-    </div>
-    <div class="drawer-section">
-      <div class="drawer-section-title">Files</div>
+    </div><div class="drawer-section"><div class="drawer-section-title">Files</div>
       ${r.zip_url
         ? `<a class="dl-btn" href="${r.zip_url}" target="_blank" style="display:block;text-align:center;padding:10px;">⬇ Download ZIP Package</a>`
         : '<div style="color:var(--muted);font-size:13px;">No files uploaded</div>'}
-    </div>
-    <div class="drawer-section">
-      <div class="drawer-section-title">Update Status</div>
-      <select class="status-selector" id="new-status">
-        <option value="pending"     ${r.status==='pending'     ?'selected':''}>Pending</option>
-        <option value="in_progress" ${r.status==='in_progress' ?'selected':''}>In Progress</option>
-        <option value="delivered"   ${r.status==='delivered'   ?'selected':''}>Delivered</option>
-        <option value="cancelled"   ${r.status==='cancelled'   ?'selected':''}>Cancelled</option>
-      </select>
-      <button class="update-btn" onclick="updateStatus('${r.request_id}')">UPDATE STATUS</button>
-    </div>`;
-  document.getElementById('drawer').classList.add('open');
+    </div><div class="drawer-section"><div class="drawer-section-title">Update Status</div><select class="status-selector" id="new-status"><option value="pending"     ${r.status === 'pending' ? 'selected' : ''}>Pending</option><option value="in_progress" ${r.status === 'in_progress' ? 'selected' : ''}>In Progress</option><option value="delivered"   ${r.status === 'delivered' ? 'selected' : ''}>Delivered</option><option value="cancelled"   ${r.status === 'cancelled' ? 'selected' : ''}>Cancelled</option></select><button class="update-btn" onclick="updateStatus('${r.request_id}')">UPDATE STATUS</button></div>`;
+    document.getElementById('drawer').classList.add('open');
 }
-
 function closeDrawer() { document.getElementById('drawer').classList.remove('open'); }
-
 async function updateStatus(requestId) {
-  const newStatus = document.getElementById('new-status').value;
-  const btn = document.querySelector('.update-btn');
-  btn.disabled = true; btn.textContent = 'Updating…';
-  try {
-    const res = await fetch(SB_URL + `/rest/v1/requests?request_id=eq.${encodeURIComponent(requestId)}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({ status: newStatus })
-    });
-    if (!res.ok) {
-      const body = await res.text();
-      toast('Error: ' + body, true);
-      return;
+    const newStatus = document.getElementById('new-status').value;
+    const btn = document.querySelector('.update-btn');
+    btn.disabled = true;
+    btn.textContent = 'Updating…';
+    try {
+        const res = await fetch(SB_URL + `/rest/v1/requests?request_id=eq.${encodeURIComponent(requestId)}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+        if (!res.ok) {
+            const body = await res.text();
+            if (body.includes('status_logs'))
+                toast('⚠ Run SQL patch: supabase/patch_add_update_policy.sql', true);
+            else
+                toast('Error: ' + body, true);
+            return;
+        }
+        toast('Status updated ✓');
+        closeDrawer();
+        loadRequests();
     }
-    toast('Status updated ✓'); closeDrawer(); loadRequests();
-  } catch(e) { toast('Error: ' + e.message, true); }
-  finally { btn.disabled = false; btn.textContent = 'UPDATE STATUS'; }
+    catch (e) {
+        toast('Error: ' + e.message, true);
+    }
+    finally {
+        btn.disabled = false;
+        btn.textContent = 'UPDATE STATUS';
+    }
 }
-
 function exportCSV() {
-  if (!allRequests.length) { toast('No data to export'); return; }
-  const cols = ['request_id','customer_name','email','contact','machine_count','status','submitted_at','zip_url'];
-  let csv = cols.join(',') + '\n';
-  allRequests.forEach(r => {
-    csv += cols.map(c => `"${(r[c]||'').toString().replace(/"/g,'""')}"`).join(',') + '\n';
-  });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download = `sks_requests_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
+    if (!allRequests.length) {
+        toast('No data to export');
+        return;
+    }
+    const cols = ['request_id', 'customer_name', 'email', 'contact', 'machine_count', 'status', 'submitted_at', 'zip_url'];
+    let csv = cols.join(',') + '\n';
+    allRequests.forEach(r => {
+        csv += cols.map(c => `"${(r[c] || '').toString().replace(/"/g, '""')}"`).join(',') + '\n';
+    });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = `sks_requests_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
 }
 
-function toast(msg, err=false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.borderColor = err ? 'var(--red)' : 'var(--green)';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
+function toast(msg, err = false) {
 
+
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.borderColor = err ? 'var(--red)' : 'var(--green)';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
 function esc(str) {
-  const d = document.createElement('div');
-  d.textContent = str || '';
-  return d.innerHTML;
-}
-</script>
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+}</script></body></html>
 
-</body>
-</html>
+
+

@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SKS Scantech — questionnaire post</title>
-<link href="https:
-<style>
-  :root {
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>SKS Scantech — questionnaire post</title><link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet"/><style>:root {
     --red: #CC0000; --darkred: #8a0000;
     --bg: #080808; --card: #111; --border: #1e1e1e;
     --text: #e8e8e8; --muted: #555; --dim: #333;
@@ -14,18 +6,23 @@
     --glow: rgba(204,0,0,0.18);
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
     background: var(--bg); color: var(--text);
     font-family: 'Inter', sans-serif; min-height: 100vh;
     overflow-x: hidden;
   }
+
+  
   body::before {
     content: '';
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http:
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
     background-size: 200px;
     opacity: 0.6;
   }
+
+  
   .glow-orb {
     position: fixed; border-radius: 50%; filter: blur(120px);
     pointer-events: none; z-index: 0;
@@ -34,6 +31,8 @@
     background: radial-gradient(circle, rgba(204,0,0,0.12) 0%, transparent 70%); }
   .glow-orb.bot-right { width: 400px; height: 400px; bottom: -80px; right: -80px;
     background: radial-gradient(circle, rgba(0,111,166,0.10) 0%, transparent 70%); }
+
+  
   header {
     position: relative; z-index: 10;
     border-bottom: 1px solid var(--border);
@@ -56,6 +55,8 @@
     font-family: 'DM Mono', monospace; font-size: 10px;
     color: var(--muted); letter-spacing: .08em;
   }
+
+  
   .hero {
     position: relative; z-index: 2;
     padding: 80px 40px 60px;
@@ -81,6 +82,8 @@
     font-size: 14px; color: var(--muted); margin-top: 16px;
     max-width: 440px; line-height: 1.6; letter-spacing: .01em;
   }
+
+  
   .section-rule {
     position: relative; z-index: 2;
     max-width: 1100px; margin: 0 auto 40px;
@@ -95,6 +98,8 @@
     color: var(--muted); letter-spacing: .14em; text-transform: uppercase;
     white-space: nowrap;
   }
+
+  
   .cards {
     position: relative; z-index: 2;
     max-width: 1100px; margin: 0 auto;
@@ -109,6 +114,7 @@
     .section-rule { padding: 0 20px; }
     header { padding: 0 20px; }
   }
+
   .card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -130,12 +136,14 @@
   .card:hover { border-color: var(--red); transform: translateY(-3px);
     box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(204,0,0,0.15); }
   .card:hover::before { opacity: 1; }
+
   .card.accent-blue { --glow: rgba(0,111,166,0.18); }
   .card.accent-blue:hover { border-color: var(--accent);
     box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,111,166,0.15); }
   .card.accent-locked { --glow: rgba(100,100,100,0.12); }
   .card.accent-locked:hover { border-color: #444;
     box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(100,100,100,0.15); }
+
   .card-icon {
     width: 44px; height: 44px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
@@ -144,6 +152,7 @@
   .icon-red    { background: rgba(204,0,0,.12); border: 1px solid rgba(204,0,0,.2); }
   .icon-blue   { background: rgba(0,111,166,.12); border: 1px solid rgba(0,111,166,.2); }
   .icon-locked { background: rgba(80,80,80,.12); border: 1px solid rgba(80,80,80,.2); }
+
   .card-tag {
     font-family: 'DM Mono', monospace; font-size: 9px;
     letter-spacing: .16em; text-transform: uppercase;
@@ -152,6 +161,7 @@
   .tag-red    { color: var(--red); }
   .tag-blue   { color: var(--accent); }
   .tag-locked { color: #555; }
+
   .card-title {
     font-family: 'Rajdhani', sans-serif; font-size: 22px;
     font-weight: 700; letter-spacing: .04em;
@@ -171,6 +181,7 @@
   .cta-red    { color: var(--red); }
   .cta-blue   { color: var(--accent); }
   .cta-locked { color: #444; }
+
   .card-lock-badge {
     position: absolute; top: 16px; right: 16px;
     background: rgba(30,30,30,0.9); border: 1px solid var(--border);
@@ -179,6 +190,8 @@
     letter-spacing: .10em; text-transform: uppercase; color: #555;
     display: flex; align-items: center; gap: 5px;
   }
+
+  
   .card-features {
     display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
   }
@@ -189,6 +202,8 @@
     background: rgba(255,255,255,.04); border: 1px solid var(--border);
     color: var(--muted);
   }
+
+  
   .status-strip {
     position: relative; z-index: 2;
     max-width: 1100px; margin: 0 auto 0;
@@ -218,6 +233,8 @@
     font-family: 'DM Mono', monospace; font-size: 10px;
     color: var(--dim); letter-spacing: .06em;
   }
+
+  
   .card {
     opacity: 0; animation: slideUp .5s ease forwards;
   }
@@ -237,78 +254,12 @@
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
-  }
-</style>
-</head>
-<body>
-<div class="glow-orb top-left"></div>
-<div class="glow-orb bot-right"></div>
-<header>
-  <div class="logo">SKS</div>
-  <div class="logo-sep">/</div>
-  <div class="logo-sub">Scantech Engg Exim Pvt. Ltd.</div>
-  <div class="header-spacer"></div>
-  <div class="header-meta">NEW DELHI · INDIA</div>
-</header>
-<section class="hero">
-  <div class="hero-eyebrow">Post-Processor Services</div>
-  <h1>Service <span>questionnaire post</span></h1>
-  <p class="hero-tagline">
+  }</style></head><body><div class="glow-orb top-left"></div><div class="glow-orb bot-right"></div><header><div class="logo">SKS</div><div class="logo-sep">/</div><div class="logo-sub">Scantech Engg Exim Pvt. Ltd.</div><div class="header-spacer"></div><div class="header-meta">NEW DELHI · INDIA</div></header><section class="hero"><div class="hero-eyebrow">Post-Processor Services</div><h1>Service <span>questionnaire post</span></h1><p class="hero-tagline">
     Submit post-processor requests, track their status in real time, and manage all incoming orders from one place.
-  </p>
-</section>
-<div class="section-rule">
-  <span class="section-rule-label">Available Portals</span>
-</div>
-<div class="cards">
-  <a class="card" href="./questionnaire_post.html">
-    <div class="card-icon icon-red">📝</div>
-    <div class="card-tag tag-red">Client · Open Access</div>
-    <div class="card-title">Submit Request</div>
-    <div class="card-features">
-      <span class="chip">Multi-machine</span>
-      <span class="chip">Auto Request ID</span>
-      <span class="chip">Email Confirmation</span>
-    </div>
-    <div class="card-desc">
+  </p></section><div class="section-rule"><span class="section-rule-label">Available Portals</span></div><div class="cards"><a class="card" href="./questionnaire_post.html"><div class="card-icon icon-red">📝</div><div class="card-tag tag-red">Client · Open Access</div><div class="card-title">Submit Request</div><div class="card-features"><span class="chip">Multi-machine</span><span class="chip">Auto Request ID</span><span class="chip">Email Confirmation</span></div><div class="card-desc">
       Fill out the post-processor request form. Add one or more CNC machines, upload CAM files or reference docs, and receive your unique Request ID instantly.
-    </div>
-    <div class="card-cta cta-red">Open Form <span>→</span></div>
-  </a>
-  <a class="card accent-blue" href="./portal/">
-    <div class="card-icon icon-blue">🔍</div>
-    <div class="card-tag tag-blue">Client · Open Access</div>
-    <div class="card-title">Track Request</div>
-    <div class="card-features">
-      <span class="chip">Live Status</span>
-      <span class="chip">Timeline View</span>
-      <span class="chip">ZIP Download</span>
-    </div>
-    <div class="card-desc">
+    </div><div class="card-cta cta-red">Open Form <span>→</span></div></a><a class="card accent-blue" href="./portal/"><div class="card-icon icon-blue">🔍</div><div class="card-tag tag-blue">Client · Open Access</div><div class="card-title">Track Request</div><div class="card-features"><span class="chip">Live Status</span><span class="chip">Timeline View</span><span class="chip">ZIP Download</span></div><div class="card-desc">
       Enter your Request ID (e.g. SKS-XXXXXXXXXXXXXXX) to see the current status, progress timeline, machine details, and download the delivered post-processor.
-    </div>
-    <div class="card-cta cta-blue">Track Status <span>→</span></div>
-  </a>
-  <a class="card accent-locked" href="./dashboard/" id="dash-link">
-    <div class="card-lock-badge">🔒 Staff Only</div>
-    <div class="card-icon icon-locked">⚙️</div>
-    <div class="card-tag tag-locked">Admin · Password Protected</div>
-    <div class="card-title">Dashboard</div>
-    <div class="card-features">
-      <span class="chip">All Requests</span>
-      <span class="chip">Status Updates</span>
-      <span class="chip">CSV Export</span>
-    </div>
-    <div class="card-desc">
+    </div><div class="card-cta cta-blue">Track Status <span>→</span></div></a><a class="card accent-locked" href="./dashboard/" id="dash-link"><div class="card-lock-badge">🔒 Staff Only</div><div class="card-icon icon-locked">⚙️</div><div class="card-tag tag-locked">Admin · Password Protected</div><div class="card-title">Dashboard</div><div class="card-features"><span class="chip">All Requests</span><span class="chip">Status Updates</span><span class="chip">CSV Export</span></div><div class="card-desc">
       Internal admin panel. View and manage all customer requests, update processing status, upload deliverables, and export reports. Requires staff credentials.
-    </div>
-    <div class="card-cta cta-locked">Restricted Access <span>→</span></div>
-  </a>
-</div>
-<div class="status-strip">
-  <div class="status-dot"></div>
-  <span class="status-text">All systems <strong>operational</strong></span>
-  <span class="footer-copy">© SKS Scantech Engg Exim Pvt. Ltd.</span>
-</div>
-</body>
-</html>
+    </div><div class="card-cta cta-locked">Restricted Access <span>→</span></div></a></div><div class="status-strip"><div class="status-dot"></div><span class="status-text">All systems <strong>operational</strong></span><span class="footer-copy">© SKS Scantech Engg Exim Pvt. Ltd.</span></div></body></html>
