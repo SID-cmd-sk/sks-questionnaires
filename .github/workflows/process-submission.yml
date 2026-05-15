@@ -1,0 +1,270 @@
+name: SKS — Process New Submission
+
+on:
+  repository_dispatch:
+    types: [new_submission]
+
+  workflow_dispatch:
+    inputs:
+      request_id:
+        description: 'Request ID to reprocess (e.g. SKS-1714123456789)'
+        required: false
+        default: ''
+
+jobs:
+  process-submission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests openpyxl
+
+      - name: Fetch submission data
+        id: fetch
+        env:
+          SUPABASE_URL:          ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY:  ${{ secrets.SUPABASE_SERVICE_KEY }}
+          REQUEST_ID:            ${{ github.event.client_payload.request_id || github.event.inputs.request_id }}
+        run: |
+          python - <<'PYEOF'
+          import os, json, urllib.request, urllib.error
+
+          sb_url = os.environ['SUPABASE_URL']
+          sb_key = os.environ['SUPABASE_SERVICE_KEY']
+          req_id = os.environ.get('REQUEST_ID', '')
+
+          if not req_id:
+              url = f"{sb_url}/rest/v1/requests?status=eq.pending&order=submitted_at.desc&limit=1"
+          else:
+              url = f"{sb_url}/rest/v1/requests?request_id=eq.{req_id}"
+
+          r = urllib.request.Request(url, headers={
+              'apikey': sb_key,
+              'Authorization': f'Bearer {sb_key}',
+              'Content-Type': 'application/json'
+          })
+          with urllib.request.urlopen(r) as resp:
+              data = json.loads(resp.read())
+
+          if not data:
+              print("::warning::No matching submission found")
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write("found=false\n")
+          else:
+              row = data[0]
+              print(f"Found: {row['request_id']} — {row['customer_name']}")
+              with open('submission.json', 'w') as f:
+                  json.dump(row, f, indent=2)
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"found=true\n")
+                  f.write(f"request_id={row['request_id']}\n")
+                  f.write(f"customer_name={row['customer_name']}\n")
+          PYEOF
+
+      - name: Download ZIP artifact
+        if: steps.fetch.outputs.found == 'true'
+        run: |
+          python - <<'PYEOF'
+          import json, urllib.request, urllib.parse, re, os
+
+          with open('submission.json') as f:
+              row = json.load(f)
+
+          zip_url = row.get('zip_url', '') or row.get('json_url', '')
+          if not zip_url:
+              print("::warning::No ZIP URL in submission")
+          else:
+              os.makedirs('artifacts', exist_ok=True)
+              fname = row.get('zip_filename', 'submission.zip')
+
+              match = re.search(r'/d/([a-zA-Z0-9_-]+)', zip_url)
+              if match:
+                  file_id = match.group(1)
+                  dl_url = f'https://drive.google.com/uc?export=download&id={file_id}'
+              elif 'uc?export=download' in zip_url:
+                  dl_url = zip_url
+              else:
+                  dl_url = zip_url   # fallback as-is
+
+              print(f"Downloading {fname} from Google Drive…")
+              urllib.request.urlretrieve(dl_url, f'artifacts/{fname}')
+              print(f"Downloaded: artifacts/{fname}")
+          PYEOF
+
+      - name: Validate submission ZIP
+        if: steps.fetch.outputs.found == 'true'
+        run: |
+          python - <<'PYEOF'
+          import json, zipfile, os, glob
+
+          zips = glob.glob('artifacts/*.zip')
+          if not zips:
+              print("::warning::No ZIP artifact found — skipping validation")
+              exit(0)
+
+          zpath = zips[0]
+          with zipfile.ZipFile(zpath) as zf:
+              names = zf.namelist()
+              print("ZIP contents:")
+              for n in names:
+                  print(f"  {n}")
+
+              json_files = [n for n in names if os.path.basename(n).lower() == 'data.json']
+              if not json_files:
+                  print("::error::data.json not found in ZIP!")
+                  exit(1)
+
+              with zf.open(json_files[0]) as jf:
+                  data = json.load(jf)
+
+              assert data.get('customer_name'), "customer_name missing"
+              print(f"✓ Valid submission: {data['customer_name']} — {len(data.get('machines',[]))} machine(s)")
+
+          with open('validation_result.json', 'w') as f:
+              json.dump({'valid': True, 'zip_path': zpath}, f)
+          PYEOF
+
+      - name: Generate metadata
+        if: steps.fetch.outputs.found == 'true'
+        run: |
+          python - <<'PYEOF'
+          import json, datetime, os
+
+          with open('submission.json') as f:
+              row = json.load(f)
+
+          machines = row.get('machines_json')
+          if isinstance(machines, str):
+              machines = json.loads(machines)
+
+          metadata = {
+              'request_id':    row['request_id'],
+              'customer_name': row['customer_name'],
+              'email':         row.get('email', ''),
+              'contact':       row.get('contact', ''),
+              'machine_count': row.get('machine_count', 0),
+              'machines':      machines or [],
+              'status':        row.get('status', 'pending'),
+              'submitted_at':  row.get('submitted_at', ''),
+              'processed_at':  datetime.datetime.utcnow().isoformat() + 'Z',
+              'zip_url':       row.get('zip_url', ''),
+              'source':        'github_actions_automation'
+          }
+
+          os.makedirs('artifacts', exist_ok=True)
+          out = f"artifacts/{row['request_id']}_metadata.json"
+          with open(out, 'w') as f:
+              json.dump(metadata, f, indent=2)
+          print(f"Metadata written: {out}")
+          PYEOF
+
+      - name: Mark request as in_progress
+        if: steps.fetch.outputs.found == 'true'
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          REQUEST_ID:           ${{ steps.fetch.outputs.request_id }}
+        run: |
+          python - <<'PYEOF'
+          import os, json, urllib.request
+
+          sb_url = os.environ['SUPABASE_URL']
+          sb_key = os.environ['SUPABASE_SERVICE_KEY']
+          req_id = os.environ['REQUEST_ID']
+
+          url  = f"{sb_url}/rest/v1/requests?request_id=eq.{req_id}"
+          body = json.dumps({'status': 'in_progress'}).encode()
+          req  = urllib.request.Request(url, data=body, method='PATCH', headers={
+              'apikey': sb_key,
+              'Authorization': f'Bearer {sb_key}',
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+          })
+          urllib.request.urlopen(req)
+          print(f"✓ {req_id} → in_progress")
+          PYEOF
+
+      - name: Notify admin via EmailJS
+        if: steps.fetch.outputs.found == 'true'
+        env:
+          EMAILJS_SERVICE_ID:  ${{ secrets.EMAILJS_SERVICE_ID }}
+          EMAILJS_TEMPLATE_ID: ${{ secrets.EMAILJS_TEMPLATE_ADMIN_ID }}
+          EMAILJS_PUBLIC_KEY:  ${{ secrets.EMAILJS_PUBLIC_KEY }}
+          REQUEST_ID:          ${{ steps.fetch.outputs.request_id }}
+          CUSTOMER_NAME:       ${{ steps.fetch.outputs.customer_name }}
+        run: |
+          python - <<'PYEOF'
+          import os, json, urllib.request
+
+          svc = os.environ.get('EMAILJS_SERVICE_ID','')
+          tpl = os.environ.get('EMAILJS_TEMPLATE_ID','')
+          key = os.environ.get('EMAILJS_PUBLIC_KEY','')
+
+          if not all([svc, tpl, key]):
+              print("::notice::EmailJS not configured — skipping notification")
+              exit(0)
+
+          with open('submission.json') as f:
+              row = json.load(f)
+          machines = row.get('machines_json')
+          if isinstance(machines, str):
+              machines = json.loads(machines)
+          machine_list = "\n".join(
+              f"• {m.get('machine_name','')} ({m.get('controller','')})"
+              for m in (machines or [])
+          ) or "No machines listed"
+
+          payload = {
+              'service_id':  svc,
+              'template_id': tpl,
+              'user_id':     key,
+              'template_params': {
+                  'to_name':       'SKS Admin',
+                  'request_id':    row['request_id'],
+                  'customer_name': row['customer_name'],
+                  'email':         row.get('email', ''),
+                  'machine_list':  machine_list,
+                  'zip_url':       row.get('zip_url', 'N/A'),
+                  'dashboard_url': 'https://sid-cmd-sk.github.io/sks-questionnaires/dashboard/'
+              }
+          }
+          body = json.dumps(payload).encode()
+          req  = urllib.request.Request(
+              'https://api.emailjs.com/api/v1.0/email/send',
+              data=body, method='POST',
+              headers={'Content-Type': 'application/json'}
+          )
+          try:
+              urllib.request.urlopen(req)
+              print("✓ Admin notification sent")
+          except Exception as e:
+              print(f"::warning::Email notification failed: {e}")
+          PYEOF
+
+      - name: Upload artifacts
+        if: steps.fetch.outputs.found == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sks-submission-${{ steps.fetch.outputs.request_id }}
+          path: artifacts/
+          retention-days: 90
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## SKS Submission Processing" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Request ID | ${{ steps.fetch.outputs.request_id || 'N/A' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Customer   | ${{ steps.fetch.outputs.customer_name || 'N/A' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status     | ${{ steps.fetch.outputs.found == 'true' && 'Processed ✓' || 'Not found ⚠' }} |" >> $GITHUB_STEP_SUMMARY

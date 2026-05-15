@@ -1,0 +1,36 @@
+# ── Never commit real secrets ────────────────────────────────
+# env.js  ← removed from ignore so GitHub Pages can serve it
+.env
+.env.local
+.env.production
+
+# ── Python artifacts ─────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.spec
+build/
+dist/
+*.egg-info/
+
+# ── Database (contains customer data — keep local) ───────────
+database.xlsx
+*.xlsx
+
+# ── Processed ZIPs (large, keep local) ───────────────────────
+processed/
+error/
+
+# ── Log files ────────────────────────────────────────────────
+*.log
+
+# ── OS files ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor ───────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
