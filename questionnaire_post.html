@@ -1875,13 +1875,7 @@ function updateOverlay(msg, pct) {
 
 // ── Google Drive upload (via Apps Script) ──────────────────
 async function uploadToGoogleDrive(blob, filename) {
-
-  console.log('Uploading ZIP...');
-
   const webAppUrl = SKS_CFG.GSHEET_WEBAPP_URL;
-
-  console.log('Apps Script URL:', webAppUrl);
-
   if (!webAppUrl) {
     console.warn('Drive upload not configured — skipping');
     return null;
@@ -1907,8 +1901,6 @@ async function uploadToGoogleDrive(blob, filename) {
 
     const base64 = btoa(binary);
 
-    console.log('ZIP converted to base64');
-
     // Send to Apps Script
     const res = await fetch(webAppUrl, {
       method: 'POST',
@@ -1922,11 +1914,7 @@ async function uploadToGoogleDrive(blob, filename) {
       })
     });
 
-    console.log('Drive response status:', res.status);
-
     const responseText = await res.text();
-
-    console.log('Drive raw response:', responseText);
 
     if (!res.ok) {
       throw new Error(`Drive upload HTTP ${res.status}`);
@@ -1940,13 +1928,9 @@ async function uploadToGoogleDrive(blob, filename) {
       throw new Error('Invalid JSON response from Apps Script');
     }
 
-    console.log('Parsed Drive response:', j);
-
     if (!j.success) {
       throw new Error(j.error || 'Drive upload failed');
     }
-
-    console.log('Drive upload successful');
 
     return {
       file_url:     j.file_url,
@@ -1964,8 +1948,6 @@ async function uploadToGoogleDrive(blob, filename) {
 
 // ── Supabase insert ────────────────────────────────────────
 async function insertSupabase(payload) {
-  console.log('Supabase insert...');
-  console.log(payload);
   const url = SKS_CFG.SUPABASE_URL;
   const key  = SKS_CFG.SUPABASE_ANON_KEY;
   if (!url || !key) {
@@ -1989,8 +1971,6 @@ async function insertSupabase(payload) {
 
 // ── EmailJS notification ───────────────────────────────────
 async function sendEmailNotification(params) {
-  console.log('EMAIL SEND START');
-  console.log('EMAIL PAYLOAD:', params);
   const svcId   = SKS_CFG.EMAILJS_SERVICE_ID;
   const pubKey  = SKS_CFG.EMAILJS_PUBLIC_KEY;
   const tplCust = SKS_CFG.EMAILJS_TEMPLATE_ID;       // customer: template_hrzjr9r
@@ -2006,7 +1986,6 @@ async function sendEmailNotification(params) {
       body: JSON.stringify({ service_id: svcId, template_id: templateId, user_id: pubKey, template_params: params })
     });
     const txt = await res.text();
-    console.log(`EMAIL ${label} STATUS:`, res.status, txt);
     if (!res.ok) console.error(`EMAIL ${label} FAILED:`, txt);
   };
 
@@ -2033,7 +2012,6 @@ async function appendGoogleSheet(rowData) {
 
 // ── Main cloud dispatch (called from finalize) ─────────────
 async function cloudDispatch(zipBlob, zipName, jsonData) {
-  console.log('Cloud dispatch started');
   if (!SKS_CFG.CLOUD_ENABLED) return;
 
   // 30-second timeout guard — prevents UI hanging forever on network stall
@@ -2124,7 +2102,6 @@ async function _cloudDispatchInner(zipBlob, zipName, jsonData) {
     download_url:  downloadUrl || 'N/A',
     submitted_at:  new Date().toLocaleString('en-IN')
   };
-  console.log('EMAIL PAYLOAD:', emailPayload);
   await sendEmailNotification(emailPayload);
 
   updateOverlay('Submission complete!', 100);

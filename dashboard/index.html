@@ -516,29 +516,15 @@
 //  SECURITY LAYER — PBKDF2 + SHA-256 + lockout
 // ══════════════════════════════════════════════════════════
 // Password hash generated with PBKDF2(SHA-256, 100000 iter, salt below)
-// To change the password: run generateHash() in browser console with your
-// new password, copy the output, and replace STORED_HASH + STORED_SALT below.
-//
-// HOW TO GENERATE A NEW PASSWORD HASH:
-//   1. Open browser DevTools console
-//   2. Paste & run the generateHash() function below
-//   3. Call: generateHash('your_new_password').then(r => console.log(JSON.stringify(r)))
-//   4. Replace STORED_HASH and STORED_SALT with the output values
-//
-// DEFAULT PASSWORD: SKSadmin@2024
-// (Change this immediately after deployment!)
+// To change the password: run generateHash() in the browser console,
+// then replace STORED_HASH and STORED_SALT with the returned values.
 
-const STORED_HASH = "9a3f2e1d8b7c6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1"; // placeholder — replaced by real hash on first run
-const STORED_SALT = "534b5361646d696e5361"; // "SKSadminSa" hex
+const STORED_HASH = "1da38861e8c9f2bad1dbf42d84532b9b2256135ce6057593d794ecf2e825c529";
+const STORED_SALT = "534b5361646d696e5361";
 const PBKDF2_ITER = 100000;
 
-// ── We store a real hash generated at script load time for the default password
-// This is a self-initializing system: on first page load, if STORED_HASH is the
-// placeholder, we generate the real hash for the default password automatically.
-let REAL_HASH = null;
-let REAL_SALT = null;
-
-const DEFAULT_PW = "SKSadmin@2024";
+let REAL_HASH = STORED_HASH;
+let REAL_SALT = STORED_SALT;
 
 async function deriveKey(password, saltHex) {
   const enc = new TextEncoder();
@@ -572,12 +558,6 @@ window.generateHash = async function(pw) {
   const hash = await deriveKey(pw, salt);
   return { hash, salt, note: `Replace STORED_HASH and STORED_SALT in dashboard/index.html` };
 };
-
-// Init: generate real hash for default password on load
-(async () => {
-  REAL_SALT = STORED_SALT;
-  REAL_HASH = await deriveKey(DEFAULT_PW, STORED_SALT);
-})();
 
 // ── Lockout state ──
 const MAX_ATTEMPTS = 5;
