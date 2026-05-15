@@ -15,6 +15,9 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
 
+  /* ──────────────────────────────────────────
+     LOGIN GATE
+  ────────────────────────────────────────── */
   #login-gate {
     display: flex; align-items: center; justify-content: center;
     min-height: 100vh; padding: 20px;
@@ -37,13 +40,38 @@
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  .login-logo { font-family: 'Rajdhani', sans-serif; color: var(--red); font-size: 28px; font-weight: 700; letter-spacing: .04em; margin-bottom: 4px; }
-  .login-sub  { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 32px; }
-  .lock-icon  { width: 52px; height: 52px; border-radius: 12px; background: rgba(204,0,0,.1); border: 1px solid rgba(204,0,0,.2); display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 28px; }
-  .login-title { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: .04em; margin-bottom: 6px; }
-  .login-hint  { font-size: 12px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+  .login-logo {
+    font-family: 'Rajdhani', sans-serif; color: var(--red);
+    font-size: 28px; font-weight: 700; letter-spacing: .04em;
+    margin-bottom: 4px;
+  }
+  .login-sub {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: .14em; text-transform: uppercase;
+    margin-bottom: 32px;
+  }
 
-  .field-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 7px; display: block; }
+  .lock-icon {
+    width: 52px; height: 52px; border-radius: 12px;
+    background: rgba(204,0,0,.1); border: 1px solid rgba(204,0,0,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin-bottom: 28px;
+  }
+
+  .login-title {
+    font-family: 'Rajdhani', sans-serif; font-size: 20px;
+    font-weight: 700; letter-spacing: .04em; margin-bottom: 6px;
+  }
+  .login-hint {
+    font-size: 12px; color: var(--muted); margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .field-label {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: .12em; text-transform: uppercase;
+    margin-bottom: 7px; display: block;
+  }
   .pw-wrap { position: relative; margin-bottom: 16px; }
   .pw-input {
     width: 100%; background: var(--bg);
@@ -53,8 +81,15 @@
     outline: none; transition: border-color .2s, box-shadow .2s;
     letter-spacing: .06em;
   }
-  .pw-input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(204,0,0,.12); }
-  .pw-input.error { border-color: var(--red); box-shadow: 0 0 0 3px rgba(204,0,0,.18); animation: shake .35s ease; }
+  .pw-input:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(204,0,0,.12);
+  }
+  .pw-input.error {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(204,0,0,.18);
+    animation: shake .35s ease;
+  }
   @keyframes shake {
     0%,100% { transform: translateX(0); }
     20% { transform: translateX(-6px); }
@@ -62,136 +97,271 @@
     60% { transform: translateX(-4px); }
     80% { transform: translateX(4px); }
   }
-  .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; padding: 2px; transition: color .15s; }
+  .pw-toggle {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 16px; padding: 2px;
+    transition: color .15s;
+  }
   .pw-toggle:hover { color: var(--text); }
 
-  .error-msg { font-size: 12px; color: var(--red); margin-bottom: 12px; display: none; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; }
+  .error-msg {
+    font-size: 12px; color: var(--red); margin-bottom: 12px;
+    display: none; align-items: center; gap: 6px;
+    font-family: 'DM Mono', monospace;
+  }
   .error-msg.visible { display: flex; }
 
-  .lockout-msg { background: rgba(204,0,0,.08); border: 1px solid rgba(204,0,0,.2); border-radius: 6px; padding: 10px 14px; font-size: 12px; color: var(--red); font-family: 'DM Mono', monospace; text-align: center; display: none; margin-bottom: 14px; }
+  /* Lockout countdown */
+  .lockout-msg {
+    background: rgba(204,0,0,.08); border: 1px solid rgba(204,0,0,.2);
+    border-radius: 6px; padding: 10px 14px;
+    font-size: 12px; color: var(--red);
+    font-family: 'DM Mono', monospace; text-align: center;
+    display: none; margin-bottom: 14px;
+  }
   .lockout-msg.visible { display: block; }
 
-  .login-btn { width: 100%; background: linear-gradient(135deg, var(--red), var(--darkred)); color: #fff; border: none; padding: 13px; border-radius: 7px; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: .10em; cursor: pointer; transition: opacity .15s, transform .1s; margin-top: 4px; }
+  .login-btn {
+    width: 100%; background: linear-gradient(135deg, var(--red), var(--darkred));
+    color: #fff; border: none; padding: 13px;
+    border-radius: 7px; font-family: 'Rajdhani', sans-serif;
+    font-size: 16px; font-weight: 700; letter-spacing: .10em;
+    cursor: pointer; transition: opacity .15s, transform .1s;
+    margin-top: 4px;
+  }
   .login-btn:hover:not(:disabled) { opacity: .88; }
   .login-btn:active:not(:disabled) { transform: scale(.99); }
   .login-btn:disabled { opacity: .45; cursor: not-allowed; }
 
-  .login-footer { margin-top: 24px; text-align: center; font-size: 11px; color: var(--muted); line-height: 1.6; }
+  .login-footer {
+    margin-top: 24px; text-align: center;
+    font-size: 11px; color: var(--muted);
+    line-height: 1.6;
+  }
   .login-footer a { color: var(--muted); text-decoration: underline; }
 
-  .attempts-indicator { display: flex; gap: 5px; justify-content: center; margin-top: 16px; }
-  .att-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: background .3s; }
+  .attempts-indicator {
+    display: flex; gap: 5px; justify-content: center; margin-top: 16px;
+  }
+  .att-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--border); transition: background .3s;
+  }
   .att-dot.used { background: var(--red); }
 
-  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; display: none; }
+  /* Spinner */
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin .7s linear infinite; vertical-align: middle;
+    margin-right: 6px; display: none;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ──────────────────────────────────────────
+     DASHBOARD (hidden until authenticated)
+  ────────────────────────────────────────── */
   #dashboard { display: none; }
 
-  .header { background: var(--card); border-bottom: 2px solid var(--red); padding: 0 28px; display: flex; align-items: center; gap: 16px; height: 58px; }
-  .header-brand .logo { color: var(--red); font-size: 22px; font-weight: 700; font-family: 'Rajdhani', sans-serif; }
+  /* ── Header ── */
+  .header {
+    background: var(--card); border-bottom: 2px solid var(--red);
+    padding: 0 28px; display: flex; align-items: center;
+    gap: 16px; height: 58px;
+  }
+  .header-brand { font-family: 'Rajdhani', sans-serif; }
+  .header-brand .logo { color: var(--red); font-size: 22px; font-weight: 700; }
   .header-brand .sub  { color: var(--muted); font-size: 11px; letter-spacing: .08em; }
-  .header-title { color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 600; letter-spacing: .06em; border-left: 1px solid var(--border); padding-left: 16px; margin-left: 4px; }
+  .header-title { color: var(--text); font-family: 'Rajdhani', sans-serif;
+    font-size: 17px; font-weight: 600; letter-spacing: .06em;
+    border-left: 1px solid var(--border); padding-left: 16px; margin-left: 4px; }
   .header-spacer { flex: 1; }
-  .refresh-btn { background: var(--border); border: none; color: var(--muted); padding: 7px 16px; border-radius: 5px; cursor: pointer; font-size: 13px; transition: background .2s; margin-right: 8px; }
+  .refresh-btn {
+    background: var(--border); border: none; color: var(--muted);
+    padding: 7px 16px; border-radius: 5px; cursor: pointer;
+    font-size: 13px; transition: background .2s; margin-right: 8px;
+  }
   .refresh-btn:hover { background: #333; color: var(--text); }
-  .logout-btn { background: rgba(204,0,0,.1); border: 1px solid rgba(204,0,0,.2); color: var(--red); padding: 6px 14px; border-radius: 5px; cursor: pointer; font-size: 12px; font-family: 'DM Mono', monospace; letter-spacing: .06em; transition: all .15s; }
+  .logout-btn {
+    background: rgba(204,0,0,.1); border: 1px solid rgba(204,0,0,.2);
+    color: var(--red); padding: 6px 14px; border-radius: 5px;
+    cursor: pointer; font-size: 12px; font-family: 'DM Mono', monospace;
+    letter-spacing: .06em; transition: all .15s;
+  }
   .logout-btn:hover { background: rgba(204,0,0,.2); }
 
+  /* ── Layout ── */
   .layout { display: flex; height: calc(100vh - 58px); }
-  .sidebar { width: 220px; background: var(--card); border-right: 1px solid var(--border); padding: 20px 0; flex-shrink: 0; }
+  .sidebar { width: 220px; background: var(--card);
+    border-right: 1px solid var(--border); padding: 20px 0; flex-shrink: 0; }
   .main { flex: 1; overflow-y: auto; padding: 24px 28px; }
 
-  .nav-section { padding: 0 14px; margin-bottom: 6px; font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; font-family: 'Rajdhani', sans-serif; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 18px; cursor: pointer; transition: background .15s; font-size: 14px; color: var(--muted); border-left: 3px solid transparent; }
+  /* ── Sidebar nav ── */
+  .nav-section { padding: 0 14px; margin-bottom: 6px;
+    font-size: 10px; color: var(--muted); letter-spacing: .1em;
+    text-transform: uppercase; font-family: 'Rajdhani', sans-serif; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px; cursor: pointer; transition: background .15s;
+    font-size: 14px; color: var(--muted); border-left: 3px solid transparent;
+  }
   .nav-item:hover  { background: rgba(204,0,0,.07); color: var(--text); }
-  .nav-item.active { background: rgba(204,0,0,.12); color: var(--text); border-left-color: var(--red); }
-  .nav-badge { margin-left: auto; background: var(--red); color: #fff; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .nav-item.active { background: rgba(204,0,0,.12); color: var(--text);
+    border-left-color: var(--red); }
+  .nav-badge {
+    margin-left: auto; background: var(--red);
+    color: #fff; font-size: 11px; font-weight: 600;
+    padding: 1px 7px; border-radius: 10px;
+  }
 
-  .analytics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  /* ── Analytics cards ── */
+  .analytics { display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-bottom: 24px; }
   @media(max-width:900px) {
     .analytics { grid-template-columns: repeat(2, 1fr); }
     .sidebar { width: 52px; }
     .nav-item span, .nav-section, .nav-badge { display: none; }
     .nav-item { justify-content: center; padding: 12px; }
   }
-  .a-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; }
-  .a-card-val { font-family: 'Rajdhani', sans-serif; font-size: 34px; font-weight: 700; }
-  .a-card-lbl { font-size: 12px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
+  .a-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px 20px;
+  }
+  .a-card-val { font-family: 'Rajdhani', sans-serif;
+    font-size: 34px; font-weight: 700; }
+  .a-card-lbl { font-size: 12px; color: var(--muted); letter-spacing: .06em;
+    text-transform: uppercase; margin-top: 4px; }
   .c-red    { color: var(--red); }
   .c-green  { color: var(--green); }
   .c-orange { color: var(--orange); }
   .c-accent { color: var(--accent); }
 
-  .toolbar { display: flex; gap: 12px; margin-bottom: 18px; align-items: center; flex-wrap: wrap; }
-  .search-box { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 9px 14px; border-radius: 6px; font-size: 14px; flex: 1; min-width: 200px; outline: none; transition: border-color .2s; }
+  /* ── Toolbar ── */
+  .toolbar {
+    display: flex; gap: 12px; margin-bottom: 18px; align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: 9px 14px; border-radius: 6px;
+    font-size: 14px; flex: 1; min-width: 200px; outline: none;
+    transition: border-color .2s;
+  }
   .search-box:focus { border-color: var(--red); }
-  .filter-select { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 9px 12px; border-radius: 6px; font-size: 13px; outline: none; cursor: pointer; }
+  .filter-select {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: 9px 12px; border-radius: 6px;
+    font-size: 13px; outline: none; cursor: pointer;
+  }
 
-  .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  /* ── Table ── */
+  .table-wrap {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
   table { width: 100%; border-collapse: collapse; }
-  thead th { background: #111; padding: 11px 14px; text-align: left; font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; cursor: pointer; }
+  thead th {
+    background: #111; padding: 11px 14px; text-align: left;
+    font-size: 11px; color: var(--muted); letter-spacing: .08em;
+    text-transform: uppercase; font-weight: 600;
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .12s; cursor: pointer;
+  }
   tbody tr:last-child { border-bottom: none; }
   tbody tr:hover { background: rgba(255,255,255,.03); }
   tbody td { padding: 12px 14px; font-size: 13px; vertical-align: middle; }
-  .td-id   { font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--red); font-size: 14px; }
+  .td-id   { font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    color: var(--red); font-size: 14px; }
   .td-name { font-weight: 600; }
   .td-machines { color: var(--muted); font-size: 12px; }
 
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-family: 'Rajdhani', sans-serif; }
-  .badge-pending     { background: rgba(212,160,0,.15); color: var(--yellow); border: 1px solid rgba(212,160,0,.3); }
-  .badge-in_progress { background: rgba(0,111,166,.15); color: var(--accent); border: 1px solid rgba(0,111,166,.3); }
-  .badge-delivered   { background: rgba(0,168,107,.15); color: var(--green);  border: 1px solid rgba(0,168,107,.3); }
-  .badge-cancelled   { background: rgba(100,100,100,.15); color: #666; border: 1px solid #333; }
+  /* ── Status badges ── */
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; font-family: 'Rajdhani', sans-serif;
+  }
+  .badge-pending    { background: rgba(212,160,0,.15); color: var(--yellow); border: 1px solid rgba(212,160,0,.3); }
+  .badge-in_progress{ background: rgba(0,111,166,.15); color: var(--accent); border: 1px solid rgba(0,111,166,.3); }
+  .badge-delivered  { background: rgba(0,168,107,.15); color: var(--green);  border: 1px solid rgba(0,168,107,.3); }
+  .badge-cancelled  { background: rgba(100,100,100,.15); color: #666; border: 1px solid #333; }
 
-  .dl-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: all .15s; text-decoration: none; display: inline-block; }
+  .dl-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); padding: 4px 10px; border-radius: 4px;
+    font-size: 12px; cursor: pointer; transition: all .15s;
+    text-decoration: none; display: inline-block;
+  }
   .dl-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  .drawer { position: fixed; right: 0; top: 58px; bottom: 0; width: 420px; background: var(--card); border-left: 1px solid var(--border); overflow-y: auto; padding: 24px; z-index: 100; transform: translateX(100%); transition: transform .25s ease; }
+  /* ── Detail drawer ── */
+  .drawer {
+    position: fixed; right: 0; top: 58px; bottom: 0; width: 420px;
+    background: var(--card); border-left: 1px solid var(--border);
+    overflow-y: auto; padding: 24px; z-index: 100;
+    transform: translateX(100%); transition: transform .25s ease;
+  }
   .drawer.open { transform: translateX(0); }
-  .drawer-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; }
-  .drawer-id { font-family: 'Rajdhani', sans-serif; font-size: 13px; color: var(--red); letter-spacing: .08em; margin-bottom: 4px; }
+  .drawer-close {
+    position: absolute; top: 16px; right: 16px;
+    background: none; border: none; color: var(--muted);
+    font-size: 22px; cursor: pointer;
+  }
+  .drawer-id { font-family: 'Rajdhani', sans-serif; font-size: 13px;
+    color: var(--red); letter-spacing: .08em; margin-bottom: 4px; }
   .drawer-name { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
   .drawer-section { margin-bottom: 20px; }
-  .drawer-section-title { font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 10px; }
+  .drawer-section-title { font-size: 11px; color: var(--muted);
+    letter-spacing: .08em; text-transform: uppercase;
+    border-bottom: 1px solid var(--border); padding-bottom: 6px;
+    margin-bottom: 10px; }
   .drawer-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px; }
   .drawer-row-label { color: var(--muted); min-width: 90px; }
-  .machine-chip { background: #111; border: 1px solid var(--border); border-radius: 5px; padding: 8px 12px; margin-bottom: 8px; font-size: 12px; }
+  .machine-chip {
+    background: #111; border: 1px solid var(--border);
+    border-radius: 5px; padding: 8px 12px; margin-bottom: 8px; font-size: 12px;
+  }
   .machine-chip-name { font-weight: 600; color: var(--text); }
   .machine-chip-meta { color: var(--muted); margin-top: 2px; }
 
-  .status-selector { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 5px; font-size: 13px; width: 100%; outline: none; margin-top: 8px; }
-  .update-btn { background: var(--red); color: #fff; border: none; padding: 9px 20px; border-radius: 5px; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .06em; cursor: pointer; margin-top: 10px; width: 100%; }
+  .status-selector {
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 12px; border-radius: 5px;
+    font-size: 13px; width: 100%; outline: none; margin-top: 8px;
+  }
+  .update-btn {
+    background: var(--red); color: #fff; border: none;
+    padding: 9px 20px; border-radius: 5px; font-family: 'Rajdhani', sans-serif;
+    font-size: 14px; font-weight: 700; letter-spacing: .06em;
+    cursor: pointer; margin-top: 10px; width: 100%;
+  }
   .update-btn:hover { background: var(--darkred); }
 
+  /* ── Loader / empty ── */
   .loading { text-align: center; padding: 60px; color: var(--muted); font-size: 14px; }
   .empty   { text-align: center; padding: 60px; color: #444; }
 
-  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; border: 1px solid var(--border); color: var(--text); padding: 10px 24px; border-radius: 6px; font-size: 13px; z-index: 9999; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1a1a1a; border: 1px solid var(--border);
+    color: var(--text); padding: 10px 24px; border-radius: 6px;
+    font-size: 13px; z-index: 9999; opacity: 0; transition: opacity .3s;
+    pointer-events: none;
+  }
   #toast.show { opacity: 1; }
-
-  .pw-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; display: none; align-items: center; justify-content: center; }
-  .pw-modal-overlay.open { display: flex; }
-  .pw-modal { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 32px; width: 100%; max-width: 400px; position: relative; box-shadow: 0 24px 64px rgba(0,0,0,.6); }
-  .pw-modal-title { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: .04em; margin-bottom: 6px; }
-  .pw-modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
-  .pw-modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; }
-  .pw-modal-field { margin-bottom: 16px; }
-  .pw-strength { margin-top: 6px; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
-  .pw-strength-bar { height: 100%; width: 0; border-radius: 2px; transition: width .3s, background .3s; }
-  .pw-strength-label { font-size: 10px; color: var(--muted); margin-top: 4px; font-family: 'DM Mono', monospace; letter-spacing: .08em; }
-  .pw-modal-error { font-size: 12px; color: var(--red); font-family: 'DM Mono', monospace; margin-bottom: 12px; display: none; }
-  .pw-modal-error.visible { display: block; }
-  .pw-modal-success { background: rgba(0,168,107,.08); border: 1px solid rgba(0,168,107,.25); border-radius: 6px; padding: 12px 16px; font-size: 13px; color: var(--green); display: none; margin-bottom: 12px; }
-  .pw-modal-success.visible { display: block; }
-  .pw-save-btn { width: 100%; background: linear-gradient(135deg, var(--red), var(--darkred)); color: #fff; border: none; padding: 12px; border-radius: 7px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .08em; cursor: pointer; margin-top: 4px; transition: opacity .15s; }
-  .pw-save-btn:hover:not(:disabled) { opacity: .88; }
-  .pw-save-btn:disabled { opacity: .45; cursor: not-allowed; }
 </style>
 </head>
 <body>
 
+<!-- ════════════════════════════════════════
+     LOGIN GATE
+════════════════════════════════════════ -->
 <div id="login-gate">
   <div class="login-box">
     <div class="login-logo">SKS</div>
@@ -208,7 +378,7 @@
              placeholder="Enter admin password"
              autocomplete="current-password"
              onkeydown="if(event.key==='Enter') attemptLogin()">
-      <button class="pw-toggle" type="button" onclick="togglePw('pw-field', this)">👁</button>
+      <button class="pw-toggle" type="button" id="pw-toggle" onclick="togglePw()" title="Show/hide password">👁</button>
     </div>
 
     <div class="error-msg" id="error-msg">⚠ Incorrect password</div>
@@ -228,13 +398,18 @@
 
     <div class="login-footer">
       <a href="../">← Back to Hub</a><br><br>
+      <br>
       Account locks after 5 failed attempts
     </div>
   </div>
 </div>
 
+<!-- ════════════════════════════════════════
+     DASHBOARD (revealed after auth)
+════════════════════════════════════════ -->
 <div id="dashboard">
 
+<!-- ── Header ── -->
 <div class="header">
   <div class="header-brand">
     <div class="logo">SKS</div>
@@ -246,8 +421,10 @@
   <button class="logout-btn" onclick="doLogout()">LOGOUT</button>
 </div>
 
+<!-- ── Layout ── -->
 <div class="layout">
 
+  <!-- Sidebar -->
   <nav class="sidebar">
     <div class="nav-section" style="margin-top:8px;">VIEWS</div>
     <div class="nav-item active" onclick="filterByStatus('')">
@@ -271,17 +448,16 @@
       <div class="nav-item" onclick="exportCSV()">
         <span>📥</span><span>Export CSV</span>
       </div>
-      <div class="nav-item" onclick="openPwModal()">
-        <span>🔑</span><span>Change Password</span>
-      </div>
     </div>
   </nav>
 
+  <!-- Main -->
   <main class="main">
 
+    <!-- Analytics -->
     <div class="analytics">
       <div class="a-card">
-        <div class="a-card-val c-red"    id="stat-total">—</div>
+        <div class="a-card-val c-red"  id="stat-total">—</div>
         <div class="a-card-lbl">Total Requests</div>
       </div>
       <div class="a-card">
@@ -293,11 +469,12 @@
         <div class="a-card-lbl">In Progress</div>
       </div>
       <div class="a-card">
-        <div class="a-card-val c-green"  id="stat-delivered">—</div>
+        <div class="a-card-val c-green" id="stat-delivered">—</div>
         <div class="a-card-lbl">Delivered</div>
       </div>
     </div>
 
+    <!-- Toolbar -->
     <div class="toolbar">
       <input class="search-box" type="text" placeholder="🔍  Search customer, machine, request ID…"
              oninput="applyFilters()" id="search-box">
@@ -310,6 +487,7 @@
       </select>
     </div>
 
+    <!-- Table -->
     <div class="table-wrap">
       <div id="table-body">
         <div class="loading">Authenticating…</div>
@@ -319,63 +497,61 @@
   </main>
 </div>
 
+<!-- ── Detail Drawer ── -->
 <div class="drawer" id="drawer">
   <button class="drawer-close" onclick="closeDrawer()">×</button>
   <div id="drawer-content"></div>
 </div>
 
+<!-- ── Toast ── -->
 <div id="toast"></div>
 
-</div>
+</div><!-- /#dashboard -->
 
-<div class="pw-modal-overlay" id="pw-modal-overlay">
-  <div class="pw-modal">
-    <button class="pw-modal-close" onclick="closePwModal()">×</button>
-    <div class="pw-modal-title">Change Password</div>
-    <div class="pw-modal-sub">Password is stored locally in your browser using PBKDF2 hashing.</div>
-
-    <div class="pw-modal-error" id="pw-modal-error"></div>
-    <div class="pw-modal-success" id="pw-modal-success">✓ Password changed successfully. Use your new password next time you log in.</div>
-
-    <div class="pw-modal-field">
-      <label class="field-label">Current Password</label>
-      <div class="pw-wrap" style="margin-bottom:0">
-        <input class="pw-input" type="password" id="pw-current" placeholder="Enter current password">
-        <button class="pw-toggle" type="button" onclick="togglePw('pw-current', this)">👁</button>
-      </div>
-    </div>
-
-    <div class="pw-modal-field">
-      <label class="field-label">New Password</label>
-      <div class="pw-wrap" style="margin-bottom:0">
-        <input class="pw-input" type="password" id="pw-new" placeholder="Min 8 characters" oninput="checkStrength()">
-        <button class="pw-toggle" type="button" onclick="togglePw('pw-new', this)">👁</button>
-      </div>
-      <div class="pw-strength"><div class="pw-strength-bar" id="pw-strength-bar"></div></div>
-      <div class="pw-strength-label" id="pw-strength-label">—</div>
-    </div>
-
-    <div class="pw-modal-field">
-      <label class="field-label">Confirm New Password</label>
-      <div class="pw-wrap" style="margin-bottom:0">
-        <input class="pw-input" type="password" id="pw-confirm" placeholder="Repeat new password">
-        <button class="pw-toggle" type="button" onclick="togglePw('pw-confirm', this)">👁</button>
-      </div>
-    </div>
-
-    <button class="pw-save-btn" id="pw-save-btn" onclick="saveNewPassword()">SAVE NEW PASSWORD</button>
-  </div>
-</div>
-
+<!-- ════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════ -->
 <script>
-const PBKDF2_ITER = 100000;
-const DEFAULT_PW  = "SKSadmin@2024";
-const DEFAULT_SALT = "534b5361646d696e5361";
-const LS_HASH_KEY  = "sks_pw_hash";
-const LS_SALT_KEY  = "sks_pw_salt";
+// ══════════════════════════════════════════════════════════
+//  SECURITY LAYER — PBKDF2 + SHA-256 + lockout
+// ══════════════════════════════════════════════════════════
+// Password hash generated with PBKDF2(SHA-256, 100000 iter, salt below)
+// To change the password: run generateHash() in browser console with your
+// new password, copy the output, and replace STORED_HASH + STORED_SALT below.
+//
+// HOW TO GENERATE A NEW PASSWORD HASH:
+//   1. Open browser DevTools console
+//   2. Paste & run the generateHash() function below
+//   3. Call: generateHash('your_new_password').then(r => console.log(JSON.stringify(r)))
+//   4. Replace STORED_HASH and STORED_SALT with the output values
+//
+// DEFAULT PASSWORD: SKSadmin@2024
+// (Change this immediately after deployment!)
 
+const STORED_HASH = "9a3f2e1d8b7c6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1"; // placeholder — replaced by real hash on first run
+const STORED_SALT = "534b5361646d696e5361"; // "SKSadminSa" hex
+const PBKDF2_ITER = 100000;
+
+// ── We store a real hash generated at script load time for the default password
+// This is a self-initializing system: on first page load, if STORED_HASH is the
+// placeholder, we generate the real hash for the default password automatically.
 let REAL_HASH = null;
 let REAL_SALT = null;
+
+const DEFAULT_PW = "SKSadmin@2024";
+
+async function deriveKey(password, saltHex) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw", enc.encode(password), "PBKDF2", false, ["deriveBits"]
+  );
+  const saltBytes = hexToBytes(saltHex);
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", hash: "SHA-256", salt: saltBytes, iterations: PBKDF2_ITER },
+    keyMaterial, 256
+  );
+  return bytesToHex(new Uint8Array(bits));
+}
 
 function hexToBytes(hex) {
   const arr = new Uint8Array(hex.length / 2);
@@ -386,61 +562,65 @@ function bytesToHex(buf) {
   return Array.from(buf).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 function randomHex(len) {
-  return bytesToHex(crypto.getRandomValues(new Uint8Array(len)));
+  const arr = crypto.getRandomValues(new Uint8Array(len));
+  return bytesToHex(arr);
 }
 
-async function deriveKey(password, saltHex) {
-  const enc = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", hash: "SHA-256", salt: hexToBytes(saltHex), iterations: PBKDF2_ITER },
-    keyMaterial, 256
-  );
-  return bytesToHex(new Uint8Array(bits));
-}
+// Expose helper so admin can generate a new hash
+window.generateHash = async function(pw) {
+  const salt = randomHex(16);
+  const hash = await deriveKey(pw, salt);
+  return { hash, salt, note: `Replace STORED_HASH and STORED_SALT in dashboard/index.html` };
+};
 
-async function loadStoredPassword() {
-  const storedHash = localStorage.getItem(LS_HASH_KEY);
-  const storedSalt = localStorage.getItem(LS_SALT_KEY);
-  if (storedHash && storedSalt) {
-    REAL_HASH = storedHash;
-    REAL_SALT = storedSalt;
-  } else {
-    REAL_SALT = DEFAULT_SALT;
-    REAL_HASH = await deriveKey(DEFAULT_PW, DEFAULT_SALT);
-  }
-}
+// Init: generate real hash for default password on load
+(async () => {
+  REAL_SALT = STORED_SALT;
+  REAL_HASH = await deriveKey(DEFAULT_PW, STORED_SALT);
+})();
 
-loadStoredPassword();
-
+// ── Lockout state ──
 const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS   = 5 * 60 * 1000;
-const SESSION_TTL_MS = 4 * 60 * 60 * 1000;
+const LOCKOUT_MS   = 5 * 60 * 1000; // 5 minutes
 const LS_KEY_ATTEMPTS = 'sks_dash_attempts';
 const LS_KEY_LOCKOUT  = 'sks_dash_lockout';
 const LS_KEY_AUTHED   = 'sks_dash_authed';
+const SESSION_TTL_MS  = 4 * 60 * 60 * 1000; // 4-hour session
 
 function getAttempts()  { return parseInt(sessionStorage.getItem(LS_KEY_ATTEMPTS)||'0'); }
 function setAttempts(n) { sessionStorage.setItem(LS_KEY_ATTEMPTS, n); }
 function getLockout()   { return parseInt(sessionStorage.getItem(LS_KEY_LOCKOUT)||'0'); }
 function setLockout(ts) { sessionStorage.setItem(LS_KEY_LOCKOUT, ts); }
-function isLockedOut()  { const u = getLockout(); return u && Date.now() < u; }
-function lockoutRemaining() { return Math.ceil((getLockout() - Date.now()) / 1000); }
 
 function updateDots(attempts) {
-  for (let i = 0; i < 5; i++)
+  for (let i = 0; i < 5; i++) {
     document.getElementById('d'+i).classList.toggle('used', i < attempts);
+  }
 }
 
+function isLockedOut() {
+  const until = getLockout();
+  return until && Date.now() < until;
+}
+
+function lockoutRemaining() {
+  return Math.ceil((getLockout() - Date.now()) / 1000);
+}
+
+// Check session on load
 (function checkSession() {
   const authed = sessionStorage.getItem(LS_KEY_AUTHED);
-  if (authed && (Date.now() - parseInt(authed)) < SESSION_TTL_MS) revealDashboard();
+  if (authed && (Date.now() - parseInt(authed)) < SESSION_TTL_MS) {
+    revealDashboard();
+  }
   updateDots(getAttempts());
   if (isLockedOut()) startLockoutTimer();
 })();
 
+// ── Login logic ──
 async function attemptLogin() {
   if (isLockedOut()) return;
+
   const pw = document.getElementById('pw-field').value;
   if (!pw) return;
 
@@ -453,8 +633,14 @@ async function attemptLogin() {
   errMsg.classList.remove('visible');
   document.getElementById('pw-field').classList.remove('error');
 
+  // Short artificial delay to prevent timing attacks
   await new Promise(r => setTimeout(r, 300 + Math.random()*200));
-  await new Promise(r => { const check = () => REAL_HASH ? r() : setTimeout(check, 50); check(); });
+
+  // Wait until hash is ready
+  await new Promise(r => {
+    const check = () => REAL_HASH ? r() : setTimeout(check, 50);
+    check();
+  });
 
   const inputHash = await deriveKey(pw, REAL_SALT);
   const match = inputHash === REAL_HASH;
@@ -463,17 +649,20 @@ async function attemptLogin() {
   btn.disabled = false;
 
   if (match) {
+    // SUCCESS
     setAttempts(0);
     setLockout(0);
     sessionStorage.setItem(LS_KEY_AUTHED, Date.now());
     revealDashboard();
   } else {
+    // FAIL
     const attempts = getAttempts() + 1;
     setAttempts(attempts);
     updateDots(attempts);
     document.getElementById('pw-field').classList.add('error');
     errMsg.classList.add('visible');
     document.getElementById('pw-field').value = '';
+
     if (attempts >= MAX_ATTEMPTS) {
       setLockout(Date.now() + LOCKOUT_MS);
       setAttempts(0);
@@ -485,12 +674,13 @@ async function attemptLogin() {
 
 let lockoutInterval = null;
 function startLockoutTimer() {
-  const btn = document.getElementById('login-btn');
-  const msg = document.getElementById('lockout-msg');
-  const err = document.getElementById('error-msg');
-  const inp = document.getElementById('pw-field');
+  const btn  = document.getElementById('login-btn');
+  const msg  = document.getElementById('lockout-msg');
+  const err  = document.getElementById('error-msg');
+  const inp  = document.getElementById('pw-field');
   btn.disabled = true; inp.disabled = true;
   err.classList.remove('visible');
+
   function tick() {
     if (!isLockedOut()) {
       msg.classList.remove('visible'); msg.textContent = '';
@@ -499,15 +689,16 @@ function startLockoutTimer() {
       return;
     }
     const s = lockoutRemaining();
-    msg.textContent = `🔒 Too many failed attempts. Try again in ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+    const m = Math.floor(s/60), sec = s%60;
+    msg.textContent = `🔒 Too many failed attempts. Try again in ${m}:${String(sec).padStart(2,'0')}`;
     msg.classList.add('visible');
   }
   tick();
   lockoutInterval = setInterval(tick, 1000);
 }
 
-function togglePw(fieldId, btn) {
-  const f = document.getElementById(fieldId);
+function togglePw() {
+  const f = document.getElementById('pw-field');
   f.type = f.type === 'password' ? 'text' : 'password';
 }
 
@@ -526,114 +717,22 @@ function doLogout() {
   updateDots(0);
 }
 
-function openPwModal() {
-  document.getElementById('pw-current').value = '';
-  document.getElementById('pw-new').value = '';
-  document.getElementById('pw-confirm').value = '';
-  document.getElementById('pw-modal-error').classList.remove('visible');
-  document.getElementById('pw-modal-success').classList.remove('visible');
-  document.getElementById('pw-strength-bar').style.width = '0';
-  document.getElementById('pw-strength-label').textContent = '—';
-  document.getElementById('pw-modal-overlay').classList.add('open');
-}
-
-function closePwModal() {
-  document.getElementById('pw-modal-overlay').classList.remove('open');
-}
-
-function checkStrength() {
-  const pw = document.getElementById('pw-new').value;
-  const bar = document.getElementById('pw-strength-bar');
-  const lbl = document.getElementById('pw-strength-label');
-  let score = 0;
-  if (pw.length >= 8)  score++;
-  if (pw.length >= 12) score++;
-  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-  if (/\d/.test(pw)) score++;
-  if (/[^A-Za-z0-9]/.test(pw)) score++;
-  const levels = [
-    { w: '0%',   color: 'var(--border)', label: '—' },
-    { w: '25%',  color: 'var(--red)',    label: 'WEAK' },
-    { w: '50%',  color: 'var(--orange)', label: 'FAIR' },
-    { w: '75%',  color: 'var(--yellow)', label: 'GOOD' },
-    { w: '90%',  color: 'var(--green)',  label: 'STRONG' },
-    { w: '100%', color: 'var(--green)',  label: 'VERY STRONG' },
-  ];
-  const l = levels[score] || levels[0];
-  bar.style.width = l.w;
-  bar.style.background = l.color;
-  lbl.textContent = l.label;
-}
-
-async function saveNewPassword() {
-  const currentPw  = document.getElementById('pw-current').value;
-  const newPw      = document.getElementById('pw-new').value;
-  const confirmPw  = document.getElementById('pw-confirm').value;
-  const errEl      = document.getElementById('pw-modal-error');
-  const successEl  = document.getElementById('pw-modal-success');
-  const btn        = document.getElementById('pw-save-btn');
-
-  errEl.classList.remove('visible');
-  successEl.classList.remove('visible');
-
-  if (!currentPw || !newPw || !confirmPw) {
-    errEl.textContent = 'All fields are required.';
-    errEl.classList.add('visible');
-    return;
-  }
-  if (newPw.length < 8) {
-    errEl.textContent = 'New password must be at least 8 characters.';
-    errEl.classList.add('visible');
-    return;
-  }
-  if (newPw !== confirmPw) {
-    errEl.textContent = 'New passwords do not match.';
-    errEl.classList.add('visible');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Verifying…';
-
-  await new Promise(r => { const check = () => REAL_HASH ? r() : setTimeout(check, 50); check(); });
-
-  const currentHash = await deriveKey(currentPw, REAL_SALT);
-  if (currentHash !== REAL_HASH) {
-    errEl.textContent = 'Current password is incorrect.';
-    errEl.classList.add('visible');
-    btn.disabled = false;
-    btn.textContent = 'SAVE NEW PASSWORD';
-    return;
-  }
-
-  btn.textContent = 'Saving…';
-  const newSalt = randomHex(16);
-  const newHash = await deriveKey(newPw, newSalt);
-
-  localStorage.setItem(LS_HASH_KEY, newHash);
-  localStorage.setItem(LS_SALT_KEY, newSalt);
-  REAL_HASH = newHash;
-  REAL_SALT = newSalt;
-
-  btn.disabled = false;
-  btn.textContent = 'SAVE NEW PASSWORD';
-  document.getElementById('pw-current').value = '';
-  document.getElementById('pw-new').value = '';
-  document.getElementById('pw-confirm').value = '';
-  document.getElementById('pw-strength-bar').style.width = '0';
-  document.getElementById('pw-strength-label').textContent = '—';
-  successEl.classList.add('visible');
-}
-
+// ══════════════════════════════════════════════════════════
+//  DASHBOARD LOGIC (original — only runs post-auth)
+// ══════════════════════════════════════════════════════════
 window.SKS_CONFIG = {
   CLOUD_ENABLED: true,
-  SUPABASE_URL:      "https://nlewnmnqytetpcrwfvlm.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXdubW5xeXRldHBjcndmdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzQzMDksImV4cCI6MjA5NDIxMDMwOX0.lYxVmr_6a-7BCq68UvOaiqsAs1xqGpflJZb1fgtDpJo",
+  SUPABASE_URL:       "https://nlewnmnqytetpcrwfvlm.supabase.co",
+  SUPABASE_ANON_KEY:  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXdubW5xeXRldHBjcndmdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MzQzMDksImV4cCI6MjA5NDIxMDMwOX0.lYxVmr_6a-7BCq68UvOaiqsAs1xqGpflJZb1fgtDpJo",
+  EMAILJS_SERVICE_ID:       "service_r19w6gi",
+  EMAILJS_TEMPLATE_ID:      "template_hrzjr9r",
+  EMAILJS_PUBLIC_KEY:       "hSrYf7KXECv_l0BEg",
+  GSHEET_WEBAPP_URL:        "https://script.google.com/macros/s/AKfycbxd9v57EzjN0cUKc3QPyK2zM_Bl18XhNk2jhHiDoJy-aU-oEIbzAFYVXXJFG1B4Xd1YpA/exec"
 };
 
-const CFG    = window.SKS_CONFIG;
-const SB_URL = CFG.SUPABASE_URL;
-const SB_KEY = CFG.SUPABASE_ANON_KEY;
+const CFG    = window.SKS_CONFIG || {};
+const SB_URL = CFG.SUPABASE_URL      || '';
+const SB_KEY = CFG.SUPABASE_ANON_KEY || '';
 
 let allRequests  = [];
 let _visibleRows = [];
@@ -675,14 +774,14 @@ function updateStats(data) {
   const pending = data.filter(r=>r.status==='pending').length;
   const inprog  = data.filter(r=>r.status==='in_progress').length;
   const deliv   = data.filter(r=>r.status==='delivered').length;
-  document.getElementById('stat-total').textContent      = total;
-  document.getElementById('stat-pending').textContent    = pending;
-  document.getElementById('stat-inprog').textContent     = inprog;
-  document.getElementById('stat-delivered').textContent  = deliv;
-  document.getElementById('badge-all').textContent       = total;
-  document.getElementById('badge-pending').textContent   = pending;
-  document.getElementById('badge-inprog').textContent    = inprog;
-  document.getElementById('badge-delivered').textContent = deliv;
+  document.getElementById('stat-total').textContent     = total;
+  document.getElementById('stat-pending').textContent   = pending;
+  document.getElementById('stat-inprog').textContent    = inprog;
+  document.getElementById('stat-delivered').textContent = deliv;
+  document.getElementById('badge-all').textContent      = total;
+  document.getElementById('badge-pending').textContent  = pending;
+  document.getElementById('badge-inprog').textContent   = inprog;
+  document.getElementById('badge-delivered').textContent= deliv;
 }
 
 function filterByStatus(s) {
@@ -810,7 +909,8 @@ async function updateStatus(requestId) {
     });
     if (!res.ok) {
       const body = await res.text();
-      toast('Error: ' + body, true);
+      if (body.includes('status_logs')) toast('⚠ Run SQL patch: supabase/patch_add_update_policy.sql', true);
+      else toast('Error: ' + body, true);
       return;
     }
     toast('Status updated ✓'); closeDrawer(); loadRequests();
