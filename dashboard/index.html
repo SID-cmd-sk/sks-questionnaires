@@ -184,6 +184,13 @@
     font-size: 13px; transition: background .2s; margin-right: 8px;
   }
   .refresh-btn:hover { background: #333; color: var(--text); }
+  .reset-btn {
+    background: rgba(0,111,166,.12); border: 1px solid rgba(0,111,166,.28);
+    color: #6db6dc; padding: 6px 14px; border-radius: 5px;
+    cursor: pointer; font-size: 12px; font-family: 'DM Mono', monospace;
+    letter-spacing: .06em; transition: all .15s;
+  }
+  .reset-btn:hover { background: rgba(0,111,166,.22); color: var(--text); }
   .logout-btn {
     background: rgba(204,0,0,.1); border: 1px solid rgba(204,0,0,.2);
     color: var(--red); padding: 6px 14px; border-radius: 5px;
@@ -418,6 +425,7 @@
   <div class="header-title">REQUEST DASHBOARD</div>
   <div class="header-spacer"></div>
   <button class="refresh-btn" onclick="loadRequests()">↻ Refresh</button>
+  <button class="reset-btn" onclick="resetPassword()">RESET PASSWORD</button>
   <button class="logout-btn" onclick="doLogout()">LOGOUT</button>
 </div>
 
@@ -565,12 +573,23 @@ const LOCKOUT_MS   = 5 * 60 * 1000; // 5 minutes
 const LS_KEY_ATTEMPTS = 'sks_dash_attempts';
 const LS_KEY_LOCKOUT  = 'sks_dash_lockout';
 const LS_KEY_AUTHED   = 'sks_dash_authed';
+const LS_KEY_HASH     = 'sks_dash_hash';
+const LS_KEY_SALT     = 'sks_dash_salt';
 const SESSION_TTL_MS  = 4 * 60 * 60 * 1000; // 4-hour session
 
 function getAttempts()  { return parseInt(sessionStorage.getItem(LS_KEY_ATTEMPTS)||'0'); }
 function setAttempts(n) { sessionStorage.setItem(LS_KEY_ATTEMPTS, n); }
 function getLockout()   { return parseInt(sessionStorage.getItem(LS_KEY_LOCKOUT)||'0'); }
 function setLockout(ts) { sessionStorage.setItem(LS_KEY_LOCKOUT, ts); }
+
+function loadStoredCredentials() {
+  const savedHash = localStorage.getItem(LS_KEY_HASH);
+  const savedSalt = localStorage.getItem(LS_KEY_SALT);
+  if (savedHash && savedSalt) {
+    REAL_HASH = savedHash;
+    REAL_SALT = savedSalt;
+  }
+}
 
 function updateDots(attempts) {
   for (let i = 0; i < 5; i++) {
@@ -589,6 +608,7 @@ function lockoutRemaining() {
 
 // Check session on load
 (function checkSession() {
+  loadStoredCredentials();
   const authed = sessionStorage.getItem(LS_KEY_AUTHED);
   if (authed && (Date.now() - parseInt(authed)) < SESSION_TTL_MS) {
     revealDashboard();
@@ -686,6 +706,41 @@ function revealDashboard() {
   document.getElementById('login-gate').style.display = 'none';
   document.getElementById('dashboard').style.display  = 'block';
   loadRequests();
+}
+
+async function resetPassword() {
+  const currentPw = window.prompt('Enter current admin password');
+  if (currentPw === null) return;
+
+  const currentHash = await deriveKey(currentPw, REAL_SALT);
+  if (currentHash !== REAL_HASH) {
+    toast('Current password is incorrect', true);
+    return;
+  }
+
+  const nextPw = window.prompt('Enter new admin password');
+  if (nextPw === null) return;
+  if (!nextPw) {
+    toast('Password cannot be empty', true);
+    return;
+  }
+
+  const confirmPw = window.prompt('Confirm new admin password');
+  if (confirmPw === null) return;
+  if (nextPw !== confirmPw) {
+    toast('Passwords do not match', true);
+    return;
+  }
+
+  const salt = randomHex(16);
+  const hash = await deriveKey(nextPw, salt);
+  localStorage.setItem(LS_KEY_HASH, hash);
+  localStorage.setItem(LS_KEY_SALT, salt);
+  REAL_HASH = hash;
+  REAL_SALT = salt;
+  setAttempts(0);
+  setLockout(0);
+  toast('Password reset ✓');
 }
 
 function doLogout() {
