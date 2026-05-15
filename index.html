@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SKS Scantech — Service Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #CC0000; --darkred: #8a0000;
+    --bg: #080808; --card: #111; --border: #1e1e1e;
+    --text: #e8e8e8; --muted: #555; --dim: #333;
+    --accent: #006FA6; --green: #00a86b;
+    --glow: rgba(204,0,0,0.18);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Inter', sans-serif; min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Noise texture overlay ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    background-size: 200px;
+    opacity: 0.6;
+  }
+
+  /* ── Ambient glow ── */
+  .glow-orb {
+    position: fixed; border-radius: 50%; filter: blur(120px);
+    pointer-events: none; z-index: 0;
+  }
+  .glow-orb.top-left  { width: 480px; height: 480px; top: -120px; left: -120px;
+    background: radial-gradient(circle, rgba(204,0,0,0.12) 0%, transparent 70%); }
+  .glow-orb.bot-right { width: 400px; height: 400px; bottom: -80px; right: -80px;
+    background: radial-gradient(circle, rgba(0,111,166,0.10) 0%, transparent 70%); }
+
+  /* ── Header ── */
+  header {
+    position: relative; z-index: 10;
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px; height: 60px;
+    display: flex; align-items: center; gap: 16px;
+    background: rgba(8,8,8,0.85);
+    backdrop-filter: blur(12px);
+  }
+  .logo {
+    font-family: 'Rajdhani', sans-serif; color: var(--red);
+    font-size: 24px; font-weight: 700; letter-spacing: .04em;
+  }
+  .logo-sep { color: var(--dim); font-size: 20px; font-weight: 300; }
+  .logo-sub {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: .12em; text-transform: uppercase;
+  }
+  .header-spacer { flex: 1; }
+  .header-meta {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: .08em;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    position: relative; z-index: 2;
+    padding: 80px 40px 60px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    color: var(--red); letter-spacing: .18em; text-transform: uppercase;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: ''; display: block; width: 32px; height: 1px; background: var(--red);
+  }
+  .hero h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(42px, 6vw, 72px);
+    font-weight: 700; line-height: 1.0;
+    letter-spacing: .03em; color: var(--text);
+    margin-bottom: 8px;
+  }
+  .hero h1 span { color: var(--red); }
+  .hero-tagline {
+    font-size: 14px; color: var(--muted); margin-top: 16px;
+    max-width: 440px; line-height: 1.6; letter-spacing: .01em;
+  }
+
+  /* ── Divider ── */
+  .section-rule {
+    position: relative; z-index: 2;
+    max-width: 1100px; margin: 0 auto 40px;
+    padding: 0 40px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-rule::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .section-rule-label {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: .14em; text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* ── Cards grid ── */
+  .cards {
+    position: relative; z-index: 2;
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 40px 80px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 860px) {
+    .cards { grid-template-columns: 1fr; padding: 0 20px 60px; }
+    .hero { padding: 60px 20px 40px; }
+    .section-rule { padding: 0 20px; }
+    header { padding: 0 20px; }
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    display: flex; flex-direction: column;
+    gap: 0;
+    text-decoration: none; color: inherit;
+    transition: border-color .25s, transform .25s, box-shadow .25s;
+    position: relative; overflow: hidden;
+    cursor: pointer;
+  }
+  .card::before {
+    content: ''; position: absolute;
+    inset: 0; border-radius: 12px;
+    opacity: 0; transition: opacity .25s;
+    background: linear-gradient(135deg, var(--glow) 0%, transparent 60%);
+  }
+  .card:hover { border-color: var(--red); transform: translateY(-3px);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(204,0,0,0.15); }
+  .card:hover::before { opacity: 1; }
+
+  .card.accent-blue { --glow: rgba(0,111,166,0.18); }
+  .card.accent-blue:hover { border-color: var(--accent);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,111,166,0.15); }
+  .card.accent-locked { --glow: rgba(100,100,100,0.12); }
+  .card.accent-locked:hover { border-color: #444;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(100,100,100,0.15); }
+
+  .card-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 20px; flex-shrink: 0;
+  }
+  .icon-red    { background: rgba(204,0,0,.12); border: 1px solid rgba(204,0,0,.2); }
+  .icon-blue   { background: rgba(0,111,166,.12); border: 1px solid rgba(0,111,166,.2); }
+  .icon-locked { background: rgba(80,80,80,.12); border: 1px solid rgba(80,80,80,.2); }
+
+  .card-tag {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: .16em; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .tag-red    { color: var(--red); }
+  .tag-blue   { color: var(--accent); }
+  .tag-locked { color: #555; }
+
+  .card-title {
+    font-family: 'Rajdhani', sans-serif; font-size: 22px;
+    font-weight: 700; letter-spacing: .04em;
+    margin-bottom: 10px;
+  }
+  .card-desc {
+    font-size: 13px; color: var(--muted); line-height: 1.65;
+    flex: 1; margin-bottom: 24px;
+  }
+  .card-cta {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Rajdhani', sans-serif; font-size: 13px;
+    font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    transition: gap .2s;
+  }
+  .card:hover .card-cta { gap: 14px; }
+  .cta-red    { color: var(--red); }
+  .cta-blue   { color: var(--accent); }
+  .cta-locked { color: #444; }
+
+  .card-lock-badge {
+    position: absolute; top: 16px; right: 16px;
+    background: rgba(30,30,30,0.9); border: 1px solid var(--border);
+    border-radius: 20px; padding: 3px 10px;
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: .10em; text-transform: uppercase; color: #555;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  /* ── Feature chips ── */
+  .card-features {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
+  }
+  .chip {
+    padding: 3px 10px; border-radius: 20px;
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: .08em; text-transform: uppercase;
+    background: rgba(255,255,255,.04); border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  /* ── Status strip ── */
+  .status-strip {
+    position: relative; z-index: 2;
+    max-width: 1100px; margin: 0 auto 0;
+    padding: 20px 40px 40px;
+    display: flex; align-items: center; gap: 24px;
+    border-top: 1px solid var(--border);
+  }
+  @media (max-width: 860px) { .status-strip { padding: 20px; flex-wrap: wrap; } }
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--green); }
+    50% { opacity: 0.6; box-shadow: 0 0 3px var(--green); }
+  }
+  .status-text {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: .10em; color: var(--muted);
+    text-transform: uppercase;
+  }
+  .status-text strong { color: var(--green); }
+  .footer-copy {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--dim); letter-spacing: .06em;
+  }
+
+  /* ── Stagger animation ── */
+  .card {
+    opacity: 0; animation: slideUp .5s ease forwards;
+  }
+  .card:nth-child(1) { animation-delay: .1s; }
+  .card:nth-child(2) { animation-delay: .2s; }
+  .card:nth-child(3) { animation-delay: .3s; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero-eyebrow, .hero h1, .hero-tagline {
+    opacity: 0; animation: fadeIn .6s ease forwards;
+  }
+  .hero-eyebrow { animation-delay: .0s; }
+  .hero h1      { animation-delay: .08s; }
+  .hero-tagline { animation-delay: .15s; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-orb top-left"></div>
+<div class="glow-orb bot-right"></div>
+
+<header>
+  <div class="logo">SKS</div>
+  <div class="logo-sep">/</div>
+  <div class="logo-sub">Scantech Engg Exim Pvt. Ltd.</div>
+  <div class="header-spacer"></div>
+  <div class="header-meta">NEW DELHI · INDIA</div>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">Post-Processor Services</div>
+  <h1>Service <span>Hub</span></h1>
+  <p class="hero-tagline">
+    Submit post-processor requests, track their status in real time, and manage all incoming orders from one place.
+  </p>
+</section>
+
+<div class="section-rule">
+  <span class="section-rule-label">Available Portals</span>
+</div>
+
+<div class="cards">
+
+  <!-- Card 1: Submit a Request -->
+  <a class="card" href="./questionnaire_post.html">
+    <div class="card-icon icon-red">📝</div>
+    <div class="card-tag tag-red">Client · Open Access</div>
+    <div class="card-title">Submit Request</div>
+    <div class="card-features">
+      <span class="chip">Multi-machine</span>
+      <span class="chip">Auto Request ID</span>
+      <span class="chip">Email Confirmation</span>
+    </div>
+    <div class="card-desc">
+      Fill out the post-processor request form. Add one or more CNC machines, upload CAM files or reference docs, and receive your unique Request ID instantly.
+    </div>
+    <div class="card-cta cta-red">Open Form <span>→</span></div>
+  </a>
+
+  <!-- Card 2: Track Status -->
+  <a class="card accent-blue" href="./portal/">
+    <div class="card-icon icon-blue">🔍</div>
+    <div class="card-tag tag-blue">Client · Open Access</div>
+    <div class="card-title">Track Request</div>
+    <div class="card-features">
+      <span class="chip">Live Status</span>
+      <span class="chip">Timeline View</span>
+      <span class="chip">ZIP Download</span>
+    </div>
+    <div class="card-desc">
+      Enter your Request ID (e.g. SKS-XXXXXXXXXXXXXXX) to see the current status, progress timeline, machine details, and download the delivered post-processor.
+    </div>
+    <div class="card-cta cta-blue">Track Status <span>→</span></div>
+  </a>
+
+  <!-- Card 3: Admin Dashboard (locked) -->
+  <a class="card accent-locked" href="./dashboard/" id="dash-link">
+    <div class="card-lock-badge">🔒 Staff Only</div>
+    <div class="card-icon icon-locked">⚙️</div>
+    <div class="card-tag tag-locked">Admin · Password Protected</div>
+    <div class="card-title">Dashboard</div>
+    <div class="card-features">
+      <span class="chip">All Requests</span>
+      <span class="chip">Status Updates</span>
+      <span class="chip">CSV Export</span>
+    </div>
+    <div class="card-desc">
+      Internal admin panel. View and manage all customer requests, update processing status, upload deliverables, and export reports. Requires staff credentials.
+    </div>
+    <div class="card-cta cta-locked">Restricted Access <span>→</span></div>
+  </a>
+
+</div>
+
+<div class="status-strip">
+  <div class="status-dot"></div>
+  <span class="status-text">All systems <strong>operational</strong></span>
+  <span class="footer-copy">© SKS Scantech Engg Exim Pvt. Ltd.</span>
+</div>
+
+</body>
+</html>
